@@ -256,7 +256,7 @@ def compare_fasta_exact_cpp(ref_fasta, query_fasta, type, group):
     print("Precision: {}".format(precision))
     return(unmatched_seq_list)
 
-def compare_3prime(genome_fasta, ref_fasta, query_fasta):
+def compare_3prime(genome_fasta, ref_fasta, query_fasta, caller_type):
     genome_list = []
     genome_rec = {}
     ref_rec = {}
@@ -290,25 +290,42 @@ def compare_3prime(genome_fasta, ref_fasta, query_fasta):
             prime3 = genome_rec[id].find(str(rec.seq.reverse_complement()))
         else:
             prime3 = start_index + (len(str(rec.seq)) - 1)
-        ref_rec[id][prime3] = str(rec.seq)
-        total_ref_records += 1
-        unmatched_ref_list.append(str(rec.seq))
+        if prime3 != -1:
+            ref_rec[id][prime3] = str(rec.seq)
+            total_ref_records += 1
+            unmatched_ref_list.append(str(rec.seq))
 
-    # parse query_fasta
-    for rec in SeqIO.parse(query_fasta, "fasta"):
-        description = (rec.description).split("_")
-        colours = description[1]
-        for index, col in enumerate(colours):
-            if col == "1":
-                id = genome_list[index]
-                # look for the 3prime index of the string
-                start_index = genome_rec[id].find(str(rec.seq))
-                if start_index == -1:
-                    prime3 = genome_rec[id].find(str(rec.seq.reverse_complement()))
-                else:
-                    prime3 = start_index + (len(str(rec.seq)) - 1)
-                query_rec[id][prime3] = str(rec.seq)
-                total_query_records += 1
+    if caller_type == "ggc":
+        # parse query_fasta
+        for rec in SeqIO.parse(query_fasta, "fasta"):
+            description = (rec.description).split("_")
+            colours = description[1]
+            for index, col in enumerate(colours):
+                if col == "1":
+                    id = genome_list[index]
+                    # look for the 3prime index of the string
+                    start_index = genome_rec[id].find(str(rec.seq))
+                    if start_index == -1:
+                        prime3 = genome_rec[id].find(str(rec.seq.reverse_complement()))
+                    else:
+                        prime3 = start_index + (len(str(rec.seq)) - 1)
+                    query_rec[id][prime3] = str(rec.seq)
+                    total_query_records += 1
+
+    elif caller_type == "prod":
+        # parse query_fasta
+        for rec in SeqIO.parse(query_fasta, "fasta"):
+            description = (rec.description).split("_")
+            id = description[0]
+
+            # look for the 3prime index of the string
+            start_index = genome_rec[id].find(str(rec.seq))
+            if start_index == -1:
+                prime3 = genome_rec[id].find(str(rec.seq.reverse_complement()))
+            else:
+                prime3 = start_index + (len(str(rec.seq)) - 1)
+            query_rec[id][prime3] = str(rec.seq)
+            total_query_records += 1
 
     # iterate over query_rec, count number of times each 3prime match found
     for colour, prime3_dict in query_rec.items():
@@ -341,4 +358,4 @@ def select_seq_length(infasta, outfasta, length):
 
 if __name__ == '__main__':
     from Bio import SeqIO
-    compare_3prime("group2_forward.txt", "group2_capsular_gene_seqs_all.fasta", "group2_calls.txt")
+    unmatched_ref, unmatched_query = compare_3prime("Pneumo_capsular_data/group3_forward.txt", "Pneumo_capsular_data/group3_capsular_gene_seqs_all.fasta", "prodigal_outputs/group3_prodigal_genes.txt", "prod")
