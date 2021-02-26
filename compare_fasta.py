@@ -282,7 +282,7 @@ def compare_3prime(genome_fasta, ref_fasta, query_fasta, caller_type):
     # parse ref_fasta
     for rec in SeqIO.parse(ref_fasta, "fasta"):
         description = (rec.description).split("_")
-        id = description[1].split(".")[0]
+        id = description[0]
 
         # look for the 3prime index of the string
         start_index = genome_rec[id].find(str(rec.seq))
