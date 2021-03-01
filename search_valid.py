@@ -1,12 +1,13 @@
 def search_valid(genome_fasta, query_file, outfile):
 	from Bio import SeqIO
+	from Bio.Seq import Seq
 	remaining_valid = []
 	genome_seq = []
 	for rec in SeqIO.parse(genome_fasta, "fasta"):
 		genome_seq.append(str(rec.seq))
 	
 	for line in query_file:
-		found = false
+		found = False
 		seq = line.strip("\n")
 		for genome in genome_seq:
 			index = genome.find(seq)
@@ -14,7 +15,7 @@ def search_valid(genome_fasta, query_file, outfile):
 				rev_seq = str(Seq(seq).reverse_complement())
 				index = genome.find(rev_seq)
 			if index != -1:
-				found = true
+				found = True
 				break
 		if found:		
 			remaining_valid.append(seq)
