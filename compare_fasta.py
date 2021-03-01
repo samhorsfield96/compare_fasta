@@ -256,7 +256,7 @@ def compare_fasta_exact_cpp(ref_fasta, query_fasta, type, group):
     print("Precision: {}".format(precision))
     return(unmatched_seq_list)
 
-def compare_3prime(genome_fasta, ref_fasta, query_fasta, caller_type):
+def compare_3prime(genome_fasta, ref_fasta, query_fasta, caller_type, min_size):
     genome_list = []
     genome_rec = {}
     ref_rec = {}
@@ -283,6 +283,9 @@ def compare_3prime(genome_fasta, ref_fasta, query_fasta, caller_type):
     for rec in SeqIO.parse(ref_fasta, "fasta"):
         description = (rec.description).split("_")
         id = description[0]
+
+        if len(str(rec.seq)) < min_size:
+           continue
 
         # look for the 3prime index of the string
         start_index = genome_rec[id].find(str(rec.seq))
