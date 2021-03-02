@@ -293,7 +293,8 @@ def compare_3prime(genome_fasta, ref_fasta, query_fasta, caller_type, min_size):
             prime3 = genome_rec[id].find(str(rec.seq.reverse_complement()))
         else:
             prime3 = start_index + (len(str(rec.seq)) - 1)
-        if prime3 != -1:
+        #check that sequence is present in genome is says, and that the gene sequence is valid
+        if prime3 != -1 and remove_invalid(str(rec.seq)):
             ref_rec[id][prime3] = str(rec.seq)
             total_ref_records += 1
             unmatched_ref_list.append(str(rec.seq))
@@ -349,8 +350,25 @@ def compare_3prime(genome_fasta, ref_fasta, query_fasta, caller_type, min_size):
     print("Precision: {}".format(precision))
     return(unmatched_ref_list, unmatched_query_list)
 
+def remove_invalid(query_seq):
+    import re
+    start_codons = ["ATG", "GTG", "TTG"]
+    stop_codons = ["TAA", "TGA", "TAG"]
+    # check if codons in right place, and in correct frame
+    if query_seq[0:3] not in start_codons or query_seq[-3:] not in stop_codons or len(query_seq) % 3 != 0:
+        return False
 
+    # check if sequence contains a premature stop codon
+    for stop in stop_codons:
+        stop_indices = [m.start() for m in re.finditer(stop, query_seq)]
+        # remove last stop as this is valid
+        if query_seq[-3:] == stop:
+            stop_indices = stop_indices[:-1]
+        if any([i % 3 == 0 for i in stop_indices]):
+            return False
 
+    # If all tests come back fine, return true
+    return True
 
 def select_seq_length(infasta, outfasta, length):
     with open(outfasta, "w") as f:
@@ -361,4 +379,4 @@ def select_seq_length(infasta, outfasta, length):
 
 if __name__ == '__main__':
     from Bio import SeqIO
-    unmatched_ref, unmatched_query = compare_3prime("Pneumo_capsular_data/group3_forward.txt", "Pneumo_capsular_data/group3_capsular_gene_seqs_all.fasta", "prodigal_outputs/group3_prodigal_genes.txt", "prod")
+    unmatched_ref, unmatched_query = compare_3prime("clique_556_seqs_all.fasta", "clique_556_CDS_all.fasta", "plasmid_clique_556_calls.fasta", "ggc", 90)

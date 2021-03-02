@@ -25,6 +25,5 @@ def search_valid(genome_fasta, query_file, outfile):
 		for i in remaining_valid:
 			f.write(i + "\n")	
 
-
 if __name__ == '__main__':
 	search_valid("Pneumo_capsular_data/group3_forward.txt", "Pneumo_capsular_data/test.fasta", "test.txt")
