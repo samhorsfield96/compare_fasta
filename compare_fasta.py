@@ -297,7 +297,7 @@ def compare_3prime(genome_fasta, ref_fasta, query_fasta, caller_type, min_size):
         if prime3 != -1 and remove_invalid(str(rec.seq)):
             ref_rec[id][prime3] = str(rec.seq)
             total_ref_records += 1
-            unmatched_ref_list.append(str(rec.seq))
+            unmatched_ref_list.append((id, str(rec.seq)))
 
     if caller_type == "ggc":
         # parse query_fasta
@@ -336,7 +336,7 @@ def compare_3prime(genome_fasta, ref_fasta, query_fasta, caller_type, min_size):
         for prime3_key in prime3_dict.keys():
             if prime3_key in ref_rec[colour]:
                 total_correct_query_records += 1
-                unmatched_ref_list.remove(ref_rec[colour][prime3_key])
+                unmatched_ref_list.remove((colour, ref_rec[colour][prime3_key]))
             else:
                 unmatched = (colour, prime3_dict[prime3_key])
                 unmatched_query_list.append(unmatched)
@@ -348,7 +348,7 @@ def compare_3prime(genome_fasta, ref_fasta, query_fasta, caller_type, min_size):
     print("Total ORFs: {}".format(total_query_records))
     print("Recall: {}".format(recall))
     print("Precision: {}".format(precision))
-    return(unmatched_ref_list, unmatched_query_list)
+    return(v, unmatched_query_list)
 
 def remove_invalid(query_seq):
     import re
