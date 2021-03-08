@@ -287,14 +287,15 @@ def compare_3prime(genome_fasta, ref_fasta, query_fasta, caller_type, min_size):
         if len(str(rec.seq)) < min_size:
            continue
 
+
         # look for the 3prime index of the string
         start_index = genome_rec[id].find(str(rec.seq))
         if start_index == -1:
             prime3 = genome_rec[id].find(str(rec.seq.reverse_complement()))
         else:
             prime3 = start_index + (len(str(rec.seq)) - 1)
-        #check that sequence is present in genome is says, and that the gene sequence is valid and no Ns present
-        if prime3 != -1 and remove_invalid(str(rec.seq)) and "N" not in str(rec.seq):
+        #check that sequence is present in genome is says, and that the gene sequence is valid and no Ns present. Also check that no duplicate entries, as ggc can't call duplicate genes
+        if prime3 != -1 and remove_invalid(str(rec.seq)) and "N" not in str(rec.seq) and prime3 not in ref_rec[id]:
             ref_rec[id][prime3] = str(rec.seq)
             total_ref_records += 1
             unmatched_ref_list.append((id, str(rec.seq)))
@@ -304,6 +305,7 @@ def compare_3prime(genome_fasta, ref_fasta, query_fasta, caller_type, min_size):
         for rec in SeqIO.parse(query_fasta, "fasta"):
             description = (rec.description).split("_")
             colours = description[1]
+
             for index, col in enumerate(colours):
                 if col == "1":
                     id = genome_list[index]
@@ -379,4 +381,4 @@ def select_seq_length(infasta, outfasta, length):
 
 if __name__ == '__main__':
     from Bio import SeqIO
-    unmatched_ref, unmatched_query = compare_3prime("clique_556_seqs_all.fasta", "clique_556_CDS_all.fasta", "plasmid_clique_556_calls.fasta", "ggc", 90)
+    unmatched_ref, unmatched_query = compare_3prime("clique_556_seqs_all.fasta", "clique_556_CDS_all.fasta", "clique556_calls_4threads_post_unitigDict_alteration_3.fasta", "ggc", 90)
