@@ -348,7 +348,7 @@ def compare_3prime(genome_fasta, ref_fasta, query_fasta, caller_type, min_size):
     print("Total ORFs: {}".format(total_query_records))
     print("Recall: {}".format(recall))
     print("Precision: {}".format(precision))
-    return(v, unmatched_query_list)
+    return(unmatched_ref_list, unmatched_query_list)
 
 def remove_invalid(query_seq):
     import re
