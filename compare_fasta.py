@@ -293,8 +293,8 @@ def compare_3prime(genome_fasta, ref_fasta, query_fasta, caller_type, min_size):
             prime3 = genome_rec[id].find(str(rec.seq.reverse_complement()))
         else:
             prime3 = start_index + (len(str(rec.seq)) - 1)
-        #check that sequence is present in genome is says, and that the gene sequence is valid
-        if prime3 != -1 and remove_invalid(str(rec.seq)):
+        #check that sequence is present in genome is says, and that the gene sequence is valid and no Ns present
+        if prime3 != -1 and remove_invalid(str(rec.seq)) and "N" not in str(rec.seq):
             ref_rec[id][prime3] = str(rec.seq)
             total_ref_records += 1
             unmatched_ref_list.append((id, str(rec.seq)))
