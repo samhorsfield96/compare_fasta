@@ -330,8 +330,9 @@ def compare_3prime(genome_fasta, ref_fasta, query_fasta, caller_type, min_size):
                 prime3 = genome_rec[id].find(str(rec.seq.reverse_complement()))
             else:
                 prime3 = start_index + (len(str(rec.seq)) - 1)
-            query_rec[id][prime3] = str(rec.seq)
-            total_query_records += 1
+            if remove_invalid(str(rec.seq)) and "N" not in str(rec.seq) and prime3 not in query_rec[id]:
+                query_rec[id][prime3] = str(rec.seq)
+                total_query_records += 1
 
     # iterate over query_rec, count number of times each 3prime match found
     for colour, prime3_dict in query_rec.items():
@@ -381,4 +382,7 @@ def select_seq_length(infasta, outfasta, length):
 
 if __name__ == '__main__':
     from Bio import SeqIO
-    unmatched_ref, unmatched_query = compare_3prime("clique_556_seqs_all.fasta", "clique_556_CDS_all.fasta", "clique556_calls_4threads_post_unitigDict_alteration_3.fasta", "ggc", 90)
+    #unmatched_ref, unmatched_query = compare_3prime("clique_556_seqs_all.fasta", "clique_556_CDS_all.fasta", "clique556_calls_4threads_post_unitigDict_alteration_3.fasta", "ggc", 90)
+    unmatched_ref_post, unmatched_query_post = compare_3prime("clique_556_seqs_all.fasta", "clique_556_CDS_all.fasta",
+                                                              "clique_556_list_chunking_4threads_filtered.fasta", "ggc",
+                                                              90)
