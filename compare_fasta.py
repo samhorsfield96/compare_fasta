@@ -10,6 +10,7 @@ def compare_3prime_old(genome_fasta, ref_fasta, query_fasta, caller_type, min_si
     total_correct_query_records = 0
     total_ref_records = 0
     total_query_records = 0
+    total_unmatched_query_records = 0
 
     unmatched_query_list = []
     unmatched_ref_list = []
@@ -27,7 +28,7 @@ def compare_3prime_old(genome_fasta, ref_fasta, query_fasta, caller_type, min_si
     # parse ref_fasta
     for rec in SeqIO.parse(ref_fasta, "fasta"):
         description = (rec.description).split("_")
-        id = description[1]
+        id = description[0]
 
         if len(str(rec.seq)) < min_size:
            continue
@@ -66,7 +67,6 @@ def compare_3prime_old(genome_fasta, ref_fasta, query_fasta, caller_type, min_si
                         query_rec[id][prime3] = str(rec.seq)
                     else:
                         incorrect_query_list.append((id, str(rec.seq)))
-                    total_query_records += 1
 
     elif caller_type == "prod":
         # parse query_fasta
@@ -84,7 +84,6 @@ def compare_3prime_old(genome_fasta, ref_fasta, query_fasta, caller_type, min_si
                 query_rec[id][prime3] = str(rec.seq)
             else:
                 incorrect_query_list.append((id, str(rec.seq)))
-            total_query_records += 1
 
     # iterate over query_rec, count number of times each 3prime match found
     for colour, prime3_dict in query_rec.items():
@@ -93,14 +92,22 @@ def compare_3prime_old(genome_fasta, ref_fasta, query_fasta, caller_type, min_si
                 total_correct_query_records += 1
                 unmatched_ref_list.remove((colour, ref_rec[colour][prime3_key]))
             else:
+                total_unmatched_query_records += 1
                 unmatched = (colour, prime3_dict[prime3_key])
                 unmatched_query_list.append(unmatched)
+            total_query_records += 1
 
+    total_query_records += len(incorrect_query_list)
 
     recall = total_correct_query_records / total_ref_records
     precision = total_correct_query_records / total_query_records
 
     print("Total ORFs: {}".format(total_query_records))
+    print("Total callable genes: {}".format(total_ref_records))
+    print("Total true positives: {}".format(total_correct_query_records))
+    print("Total false positives: {}".format(total_query_records - total_correct_query_records))
+    print("Total false negatives: {}".format(total_ref_records - total_correct_query_records))
+    print("Total artificial calls: {}".format(len(incorrect_query_list)))
     print("Recall: {}".format(recall))
     print("Precision: {}".format(precision))
     return(unmatched_ref_list, unmatched_query_list, incorrect_query_list)
@@ -115,6 +122,7 @@ def compare_3prime_new(genome_fasta, ref_fasta, query_fasta, caller_type, min_si
     total_correct_query_records = 0
     total_ref_records = 0
     total_query_records = 0
+    total_unmatched_query_records = 0
 
     unmatched_query_list = []
     unmatched_ref_list = []
@@ -171,7 +179,6 @@ def compare_3prime_new(genome_fasta, ref_fasta, query_fasta, caller_type, min_si
                         query_rec[id][prime3] = str(rec.seq)
                     else:
                         incorrect_query_list.append((id, str(rec.seq)))
-                    total_query_records += 1
 
     elif caller_type == "prod":
         # parse query_fasta
@@ -189,7 +196,7 @@ def compare_3prime_new(genome_fasta, ref_fasta, query_fasta, caller_type, min_si
                 query_rec[id][prime3] = str(rec.seq)
             else:
                 incorrect_query_list.append((id, str(rec.seq)))
-            total_query_records += 1
+
 
     # iterate over query_rec, count number of times each 3prime match found
     for colour, prime3_dict in query_rec.items():
@@ -198,14 +205,22 @@ def compare_3prime_new(genome_fasta, ref_fasta, query_fasta, caller_type, min_si
                 total_correct_query_records += 1
                 unmatched_ref_list.remove((colour, ref_rec[colour][prime3_key]))
             else:
+                total_unmatched_query_records += 1
                 unmatched = (colour, prime3_dict[prime3_key])
                 unmatched_query_list.append(unmatched)
+            total_query_records += 1
 
+    total_query_records += len(incorrect_query_list)
 
     recall = total_correct_query_records / total_ref_records
     precision = total_correct_query_records / total_query_records
 
     print("Total ORFs: {}".format(total_query_records))
+    print("Total callable genes: {}".format(total_ref_records))
+    print("Total true positives: {}".format(total_correct_query_records))
+    print("Total false positives: {}".format(total_query_records - total_correct_query_records))
+    print("Total false negatives: {}".format(total_ref_records - total_correct_query_records))
+    print("Total artificial calls: {}".format(len(incorrect_query_list)))
     print("Recall: {}".format(recall))
     print("Precision: {}".format(precision))
     return(unmatched_ref_list, unmatched_query_list, incorrect_query_list)
@@ -240,6 +255,7 @@ def select_seq_length(infasta, outfasta, length):
 if __name__ == '__main__':
     from Bio import SeqIO
     #unmatched_ref, unmatched_query = compare_3prime("clique_556_seqs_all.fasta", "clique_556_CDS_all.fasta", "clique556_calls_4threads_post_unitigDict_alteration_3.fasta", "ggc", 90)
-    unmatched_ref_post, unmatched_query_post = compare_3prime_old("clique_556_seqs_all.fasta", "clique_556_CDS_all.fasta",
-                                                              "clique_556_list_chunking_4threads_filtered.fasta", "ggc",
-                                                              90)
+    unmatched_ref_list, unmatched_query_list, incorrect_query_list = compare_3prime_old(
+        "Pneumo_capsular_data/group1_forward.txt", "Pneumo_capsular_data/group1_capsular_gene_seqs_all.fasta",
+        "Pre-v1.0.0/group1_CBL_comm_a3e6e7d_calls.fasta", "ggc", 90)
+
