@@ -34,7 +34,7 @@ def compare_3prime(genome_fasta, ref_fasta, query_fasta, caller_type, min_size, 
         # parse ref_fasta
         for rec in SeqIO.parse(ref_fasta, "fasta"):
             description = (rec.description).split("_")
-            id = description[1]
+            id = description[0]
 
             if len(str(rec.seq)) < min_size:
                continue
@@ -77,9 +77,8 @@ def compare_3prime(genome_fasta, ref_fasta, query_fasta, caller_type, min_size, 
             elif 1 <= ggcaller_version < 1.2:
                 # parse query_fasta
                 for rec in SeqIO.parse(query_fasta, "fasta"):
-                    colours = (((((rec.description.strip()).split("["))[4]).replace("]", "")).replace("'", "")).replace(
-                        ", ", "")
-                    colours = list(colours)
+                    description = (rec.description).split("_")
+                    colours = description[2]
 
                     for index, col in enumerate(colours):
                         if col == "1":
