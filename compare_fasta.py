@@ -20,7 +20,7 @@ def get_options():
                     default=90,
                     help='Minimum gene length to include. '
                     '[Default = False] ')
-    IO.add_argument('--ggc-version',
+    IO.add_argument('--vers',
                     type=float,
                     default=-1.0,
                     help='If using ggCaller specify version in X.X format (e.g. 0.1, 1.0, 1.2) ')
@@ -207,11 +207,11 @@ def main():
         print("Please specify --caller as either \'prod\' or \'ggc\'")
         return 1
     else:
-        if options.caller == "ggc" and (options.ggc_version < 0 or options.ggc_version > 1.3):
+        if options.caller == "ggc" and (options.vers < 0 or options.vers > 1.3):
             print("Please specify correct ggCaller version.")
             return 1
         else:
-            output_tuple = compare_3prime(options.seq, options.genes, options.query, options.caller, options.min_size, options.ggc_version)
+            output_tuple = compare_3prime(options.seq, options.genes, options.query, options.caller, options.min_size, options.vers)
     return 0
 
 if __name__ == '__main__':
