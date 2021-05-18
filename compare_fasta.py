@@ -1,165 +1,30 @@
 from Bio import SeqIO
+import argparse
 
-# used for analysing old ggCaller output (colours held in square brackets)
-def compare_3prime(genome_fasta, ref_fasta, query_fasta, caller_type, min_size, ggcaller_version=None):
-    if caller_type == "ggc" and (ggcaller_version == None or 0 < ggcaller_version < 1.3):
-        print("Please specify correct ggCaller version.")
-        return 1
+def get_options():
+    description = 'Generates ORFs from a Bifrost graph.'
+    parser = argparse.ArgumentParser(description=description,
+                                     prog='ggcaller')
 
-    else:
-
-        genome_list = []
-        genome_rec = {}
-        ref_rec = {}
-        query_rec = {}
-
-        total_correct_query_records = 0
-        total_ref_records = 0
-        total_query_records = 0
-        total_unmatched_query_records = 0
-
-        unmatched_query_list = []
-        unmatched_ref_list = []
-        incorrect_query_list = []
-
-        # parse genome_fasta
-        for rec in SeqIO.parse(genome_fasta, "fasta"):
-            description = (rec.description).split("_")
-            id = description[0]
-            genome_list.append(id)
-            genome_rec[id] = str(rec.seq)
-            ref_rec[id] = {}
-            query_rec[id] = {}
-
-        # parse ref_fasta
-        for rec in SeqIO.parse(ref_fasta, "fasta"):
-            description = (rec.description).split("_")
-            id = description[0]
-
-            if len(str(rec.seq)) < min_size:
-               continue
-
-
-            # look for the 3prime index of the string
-            start_index = genome_rec[id].find(str(rec.seq))
-            if start_index == -1:
-                prime3 = genome_rec[id].find(str(rec.seq.reverse_complement()))
-            else:
-                prime3 = start_index + (len(str(rec.seq)) - 1)
-            #check that sequence is present in genome is says, and that the gene sequence is valid and no Ns present. Also check that no duplicate entries, as ggc can't call duplicate genes
-            if prime3 != -1 and remove_invalid(str(rec.seq)) and "N" not in str(rec.seq) and prime3 not in ref_rec[id]:
-                ref_rec[id][prime3] = str(rec.seq)
-                total_ref_records += 1
-                unmatched_ref_list.append((id, str(rec.seq)))
-
-        if caller_type == "ggc":
-            if ggcaller_version < 1:
-                # parse query_fasta
-                for rec in SeqIO.parse(query_fasta, "fasta"):
-                    colours = (((((rec.description.strip()).split("["))[4]).replace("]", "")).replace("'", "")).replace(", ", "")
-                    colours = list(colours)
-
-                    for index, col in enumerate(colours):
-                        if col == "1":
-                            id = genome_list[index]
-                            # look for the 3prime index of the string
-                            start_index = genome_rec[id].find(str(rec.seq))
-                            if start_index == -1:
-                                prime3 = genome_rec[id].find(str(rec.seq.reverse_complement()))
-                            else:
-                                prime3 = start_index + (len(str(rec.seq)) - 1)
-
-                            # determine if gene sequence is real, if not add to incorrect_query_list
-                            if prime3 != -1:
-                                query_rec[id][prime3] = str(rec.seq)
-                            else:
-                                incorrect_query_list.append((id, str(rec.seq)))
-            elif 1 <= ggcaller_version < 1.2:
-                # parse query_fasta
-                for rec in SeqIO.parse(query_fasta, "fasta"):
-                    description = (rec.description).split("_")
-                    colours = description[2]
-
-                    for index, col in enumerate(colours):
-                        if col == "1":
-                            id = genome_list[index]
-                            # look for the 3prime index of the string
-                            start_index = genome_rec[id].find(str(rec.seq))
-                            if start_index == -1:
-                                prime3 = genome_rec[id].find(str(rec.seq.reverse_complement()))
-                            else:
-                                prime3 = start_index + (len(str(rec.seq)) - 1)
-
-                            # determine if gene sequence is real, if not add to incorrect_query_list
-                            if prime3 != -1:
-                                query_rec[id][prime3] = str(rec.seq)
-                            else:
-                                incorrect_query_list.append((id, str(rec.seq)))
-            elif 1.2 <= ggcaller_version < 1.3:
-                # parse query_fasta
-                for rec in SeqIO.parse(query_fasta, "fasta"):
-                    description = (rec.description).split("_")
-                    colours = description[1]
-
-                    for index, col in enumerate(colours):
-                        if col == "1":
-                            id = genome_list[index]
-                            # look for the 3prime index of the string
-                            start_index = genome_rec[id].find(str(rec.seq))
-                            if start_index == -1:
-                                prime3 = genome_rec[id].find(str(rec.seq.reverse_complement()))
-                            else:
-                                prime3 = start_index + (len(str(rec.seq)) - 1)
-
-                            # determine if gene sequence is real, if not add to incorrect_query_list
-                            if prime3 != -1:
-                                query_rec[id][prime3] = str(rec.seq)
-                            else:
-                                incorrect_query_list.append((id, str(rec.seq)))
-
-        elif caller_type == "prod":
-            # parse query_fasta
-            for rec in SeqIO.parse(query_fasta, "fasta"):
-                description = (rec.description).split("_")
-                id = description[0]
-
-                # look for the 3prime index of the string
-                start_index = genome_rec[id].find(str(rec.seq))
-                if start_index == -1:
-                    prime3 = genome_rec[id].find(str(rec.seq.reverse_complement()))
-                else:
-                    prime3 = start_index + (len(str(rec.seq)) - 1)
-                if remove_invalid(str(rec.seq)) and "N" not in str(rec.seq) and prime3 not in query_rec[id]:
-                    query_rec[id][prime3] = str(rec.seq)
-                # else:
-                #     incorrect_query_list.append((id, str(rec.seq)))
-
-        # iterate over query_rec, count number of times each 3prime match found
-        for colour, prime3_dict in query_rec.items():
-            for prime3_key in prime3_dict.keys():
-                if prime3_key in ref_rec[colour]:
-                    total_correct_query_records += 1
-                    unmatched_ref_list.remove((colour, ref_rec[colour][prime3_key]))
-                else:
-                    total_unmatched_query_records += 1
-                    unmatched = (colour, prime3_dict[prime3_key])
-                    unmatched_query_list.append(unmatched)
-                total_query_records += 1
-
-        total_query_records += len(incorrect_query_list)
-
-        recall = total_correct_query_records / total_ref_records
-        precision = total_correct_query_records / total_query_records
-
-        print("Total ORFs: {}".format(total_query_records))
-        print("Total callable genes: {}".format(total_ref_records))
-        print("Total true positives: {}".format(total_correct_query_records))
-        print("Total false positives: {}".format(total_query_records - total_correct_query_records))
-        print("Total false negatives: {}".format(total_ref_records - total_correct_query_records))
-        print("Total artificial calls: {}".format(len(incorrect_query_list)))
-        print("Recall: {}".format(recall))
-        print("Precision: {}".format(precision))
-        return(unmatched_ref_list, unmatched_query_list, incorrect_query_list)
+    IO = parser.add_argument_group('Input/options.out')
+    IO.add_argument('--seq',
+                    help='Reference sequences genes called from (FASTA format)')
+    IO.add_argument('--genes',
+                    help='Reference gene panel (FASTA format)')
+    IO.add_argument('--query',
+                    help='Genes generated by gene caller to query (FASTA format)')
+    IO.add_argument('--caller',
+                    help='Gene caller used. Can be either \'prod\' for Prodigal or \'ggc\' for ggCaller ')
+    IO.add_argument('--min-size',
+                    type=int,
+                    default=90,
+                    help='Minimum gene length to include. '
+                    '[Default = False] ')
+    IO.add_argument('--ggc-version',
+                    type=float,
+                    default=-1.0,
+                    help='If using ggCaller specify version in X.X format (e.g. 0.1, 1.0, 1.2) ')
+    return parser.parse_args()
 
 def remove_invalid(query_seq):
     import re
@@ -181,11 +46,176 @@ def remove_invalid(query_seq):
     # If all tests come back fine, return true
     return True
 
+def compare_3prime(genome_fasta, ref_fasta, query_fasta, caller_type, min_size, ggcaller_version):
+    # generate lists to hold gene coordinates
+    genome_list = []
+    genome_rec = {}
+    ref_rec = {}
+    query_rec = {}
+
+    total_correct_query_records = 0
+    total_ref_records = 0
+    total_query_records = 0
+    total_unmatched_query_records = 0
+
+    unmatched_query_list = []
+    unmatched_ref_list = []
+    incorrect_query_list = []
+
+    # parse genome_fasta
+    for rec in SeqIO.parse(genome_fasta, "fasta"):
+        description = (rec.description).split("_")
+        id = description[0]
+        genome_list.append(id)
+        genome_rec[id] = str(rec.seq)
+        ref_rec[id] = {}
+        query_rec[id] = {}
+
+    # parse ref_fasta
+    for rec in SeqIO.parse(ref_fasta, "fasta"):
+        description = (rec.description).split("_")
+        id = description[0]
+
+        if len(str(rec.seq)) < min_size:
+           continue
+
+
+        # look for the 3prime index of the string
+        start_index = genome_rec[id].find(str(rec.seq))
+        if start_index == -1:
+            prime3 = genome_rec[id].find(str(rec.seq.reverse_complement()))
+        else:
+            prime3 = start_index + (len(str(rec.seq)) - 1)
+        #check that sequence is present in genome is says, and that the gene sequence is valid and no Ns present. Also check that no duplicate entries, as ggc can't call duplicate genes
+        if prime3 != -1 and remove_invalid(str(rec.seq)) and "N" not in str(rec.seq) and prime3 not in ref_rec[id]:
+            ref_rec[id][prime3] = str(rec.seq)
+            total_ref_records += 1
+            unmatched_ref_list.append((id, str(rec.seq)))
+
+    if caller_type == "ggc":
+        if ggcaller_version < 1:
+            # parse query_fasta
+            for rec in SeqIO.parse(query_fasta, "fasta"):
+                colours = (((((rec.description.strip()).split("["))[4]).replace("]", "")).replace("'", "")).replace(", ", "")
+                colours = list(colours)
+
+                for index, col in enumerate(colours):
+                    if col == "1":
+                        id = genome_list[index]
+                        # look for the 3prime index of the string
+                        start_index = genome_rec[id].find(str(rec.seq))
+                        if start_index == -1:
+                            prime3 = genome_rec[id].find(str(rec.seq.reverse_complement()))
+                        else:
+                            prime3 = start_index + (len(str(rec.seq)) - 1)
+
+                        # determine if gene sequence is real, if not add to incorrect_query_list
+                        if prime3 != -1:
+                            query_rec[id][prime3] = str(rec.seq)
+                        else:
+                            incorrect_query_list.append((id, str(rec.seq)))
+        elif 1 <= ggcaller_version < 1.2:
+            # parse query_fasta
+            for rec in SeqIO.parse(query_fasta, "fasta"):
+                description = (rec.description).split("_")
+                colours = description[2]
+
+                for index, col in enumerate(colours):
+                    if col == "1":
+                        id = genome_list[index]
+                        # look for the 3prime index of the string
+                        start_index = genome_rec[id].find(str(rec.seq))
+                        if start_index == -1:
+                            prime3 = genome_rec[id].find(str(rec.seq.reverse_complement()))
+                        else:
+                            prime3 = start_index + (len(str(rec.seq)) - 1)
+
+                        # determine if gene sequence is real, if not add to incorrect_query_list
+                        if prime3 != -1:
+                            query_rec[id][prime3] = str(rec.seq)
+                        else:
+                            incorrect_query_list.append((id, str(rec.seq)))
+        elif 1.2 <= ggcaller_version < 1.3:
+            # parse query_fasta
+            for rec in SeqIO.parse(query_fasta, "fasta"):
+                description = (rec.description).split("_")
+                colours = description[1]
+
+                for index, col in enumerate(colours):
+                    if col == "1":
+                        id = genome_list[index]
+                        # look for the 3prime index of the string
+                        start_index = genome_rec[id].find(str(rec.seq))
+                        if start_index == -1:
+                            prime3 = genome_rec[id].find(str(rec.seq.reverse_complement()))
+                        else:
+                            prime3 = start_index + (len(str(rec.seq)) - 1)
+
+                        # determine if gene sequence is real, if not add to incorrect_query_list
+                        if prime3 != -1:
+                            query_rec[id][prime3] = str(rec.seq)
+                        else:
+                            incorrect_query_list.append((id, str(rec.seq)))
+
+    elif caller_type == "prod":
+        # parse query_fasta
+        for rec in SeqIO.parse(query_fasta, "fasta"):
+            description = (rec.description).split("_")
+            id = description[0]
+
+            # look for the 3prime index of the string
+            start_index = genome_rec[id].find(str(rec.seq))
+            if start_index == -1:
+                prime3 = genome_rec[id].find(str(rec.seq.reverse_complement()))
+            else:
+                prime3 = start_index + (len(str(rec.seq)) - 1)
+            if remove_invalid(str(rec.seq)) and "N" not in str(rec.seq) and prime3 not in query_rec[id]:
+                query_rec[id][prime3] = str(rec.seq)
+            # else:
+            #     incorrect_query_list.append((id, str(rec.seq)))
+
+    # iterate over query_rec, count number of times each 3prime match found
+    for colour, prime3_dict in query_rec.items():
+        for prime3_key in prime3_dict.keys():
+            if prime3_key in ref_rec[colour]:
+                total_correct_query_records += 1
+                unmatched_ref_list.remove((colour, ref_rec[colour][prime3_key]))
+            else:
+                total_unmatched_query_records += 1
+                unmatched = (colour, prime3_dict[prime3_key])
+                unmatched_query_list.append(unmatched)
+            total_query_records += 1
+
+    total_query_records += len(incorrect_query_list)
+
+    recall = total_correct_query_records / total_ref_records
+    precision = total_correct_query_records / total_query_records
+
+    print("Total ORFs: {}".format(total_query_records))
+    print("Total callable genes: {}".format(total_ref_records))
+    print("Total true positives: {}".format(total_correct_query_records))
+    print("Total false positives: {}".format(total_query_records - total_correct_query_records))
+    print("Total false negatives: {}".format(total_ref_records - total_correct_query_records))
+    print("Total artificial calls: {}".format(len(incorrect_query_list)))
+    print("Recall: {}".format(recall))
+    print("Precision: {}".format(precision))
+    return(unmatched_ref_list, unmatched_query_list, incorrect_query_list)
+
+def main():
+    options = get_options()
+    if options.caller != "prod" or options.caller != "ggc":
+        print("Please specify --caller as either \'prod\' or \'ggc\'")
+        return 1
+    else:
+        if options.caller == "ggc" and (options.ggc_version < 0 or options.ggc_version > 1.3):
+            print("Please specify correct ggCaller version.")
+            return 1
+        else:
+            output_tuple = compare_3prime(options.seq, options.genes, options.query, options.caller, options.min_size, options.ggc_version)
+    return 0
+
 if __name__ == '__main__':
-    from Bio import SeqIO
-    #unmatched_ref, unmatched_query = compare_3prime("clique_556_seqs_all.fasta", "clique_556_CDS_all.fasta", "clique556_calls_4threads_post_unitigDict_alteration_3.fasta", "ggc", 90)
-    unmatched_ref_list, unmatched_query_list, incorrect_query_list = compare_3prime_new(
-        "Pneumo_capsular_data/all_capsular_seqs.fasta", "Pneumo_capsular_data/all_capsular_CDS.fasta",
-        "all_pneumo_capsules_comm_2a8eceb.fasta", "prod", 90)
+    main()
+
 
 
