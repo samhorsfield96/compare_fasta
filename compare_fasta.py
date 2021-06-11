@@ -2,9 +2,9 @@ from Bio import SeqIO
 import argparse
 
 def get_options():
-    description = 'Generates ORFs from a Bifrost graph.'
+    description = "Determines 3' accuracy for prodigal and ggCaller gene calls."
     parser = argparse.ArgumentParser(description=description,
-                                     prog='ggcaller')
+                                     prog='python compare_fasta.py')
 
     IO = parser.add_argument_group('Input/options.out')
     IO.add_argument('--seq',

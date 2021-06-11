@@ -16,8 +16,8 @@ Analyse recall and precision of gene calls from [ggCaller](https://github.com/sa
 
 If running with gene calls from ggCaller version 1.2:
 
-```python compare_fasta.py --seqs ref.fasta --genes genes.fasta --query query.fasta --caller ggc --vers 1.2```
+```python compare_fasta.py --seq ref.fasta --genes genes.fasta --query query.fasta --caller ggc --vers 1.2```
 
 If running with gene calls from Prodigal:
 
-```python compare_fasta.py --seqs ref.fasta --genes genes.fasta --query query.fasta --caller prod```
+```python compare_fasta.py --seq ref.fasta --genes genes.fasta --query query.fasta --caller prod```
