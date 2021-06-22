@@ -67,10 +67,15 @@ def compare_3prime(genome_fasta, ref_fasta, query_fasta, caller_type, min_size, 
     for rec in SeqIO.parse(genome_fasta, "fasta"):
         description = (rec.description).split("_")
         id = description[0]
-        genome_list.append(id)
-        genome_rec[id] = str(rec.seq)
-        ref_rec[id] = {}
-        query_rec[id] = {}
+        # if genome not found before, add to list.
+        if id not in genome_list:
+            genome_list.append(id)
+            genome_rec[id] = str(rec.seq)
+            ref_rec[id] = {}
+            query_rec[id] = {}
+        # if genome made up of multiple contigs, just concatenate the string together to enable searching.
+        else:
+            genome_rec[id] += str(rec.seq)
 
     # parse ref_fasta
     for rec in SeqIO.parse(ref_fasta, "fasta"):
