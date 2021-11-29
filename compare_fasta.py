@@ -162,6 +162,25 @@ def compare_3prime(genome_fasta, ref_fasta, query_fasta, caller_type, min_size, 
                             query_rec[id][prime3] = str(rec.seq)
                         else:
                             incorrect_query_list.append((id, str(rec.seq)))
+        elif 1.3 <= ggcaller_version < 1.4:
+            # parse query_fasta
+            for rec in SeqIO.parse(query_fasta, "fasta"):
+                id = rec.id.split('_')[0]
+
+                # look for the 3prime index of the string
+                start_index = genome_rec[id].find(str(rec.seq))
+                if start_index == -1:
+                    prime3 = genome_rec[id].find(str(rec.seq.reverse_complement()))
+                else:
+                    prime3 = start_index + (len(str(rec.seq)) - 1)
+
+                # determine if gene sequence is real, if not add to incorrect_query_list
+                if prime3 != -1:
+                    query_rec[id][prime3] = str(rec.seq)
+                else:
+                    incorrect_query_list.append((id, str(rec.seq)))
+        else:
+            print("Please specific ggCaller version in form '1.X'")
 
     elif caller_type == "prod":
         # parse query_fasta
