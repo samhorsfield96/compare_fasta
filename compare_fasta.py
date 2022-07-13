@@ -1,5 +1,6 @@
 from Bio import SeqIO
 import argparse
+import statistics
 
 def get_options():
     description = "Determines 3' accuracy for prodigal and ggCaller gene calls."
@@ -381,13 +382,21 @@ def compare_exact(genome_fasta, ref_fasta, query_fasta, caller_type, min_size, g
             # else:
             #     incorrect_query_list.append((id, str(rec.seq)))
 
+    prop_length = []
     # iterate over query_rec, count number of times each 3prime match found
     for colour, prime3_dict in query_rec.items():
         for prime3_key, seq in prime3_dict.items():
             if prime3_key in ref_rec[colour]:
-                if ref_rec[colour][prime3_key] == seq:
+                ref_seq = ref_rec[colour][prime3_key]
+                if ref_seq == seq:
                     total_correct_query_records += 1
                     unmatched_ref_list.remove((colour, ref_rec[colour][prime3_key]))
+                else:
+
+                    total_unmatched_query_records += 1
+                    unmatched = (colour, prime3_dict[prime3_key])
+                    unmatched_query_list.append(unmatched)
+                prop_length.append(len(seq) / len(ref_seq))
             else:
                 total_unmatched_query_records += 1
                 unmatched = (colour, prime3_dict[prime3_key])
@@ -399,6 +408,9 @@ def compare_exact(genome_fasta, ref_fasta, query_fasta, caller_type, min_size, g
     recall = total_correct_query_records / total_ref_records
     precision = total_correct_query_records / total_query_records
 
+    mean_prop_length = statistics.mean(prop_length)
+    stdev_prop_length = statistics.stdev(prop_length)
+
     print("Total ORFs: {}".format(total_query_records))
     print("Total callable genes: {}".format(total_ref_records))
     print("Total true positives: {}".format(total_correct_query_records))
@@ -407,6 +419,8 @@ def compare_exact(genome_fasta, ref_fasta, query_fasta, caller_type, min_size, g
     print("Total artificial calls: {}".format(len(incorrect_query_list)))
     print("Recall: {}".format(recall))
     print("Precision: {}".format(precision))
+    print("Mean proportion of ORF length: {}".format(mean_prop_length))
+    print("Stdev proportion of ORF length: {}".format(stdev_prop_length))
     return(unmatched_ref_list, unmatched_query_list, incorrect_query_list)
 
 def main():
@@ -427,7 +441,9 @@ def main():
     return 0
 
 if __name__ == '__main__':
-    main()
+    #main()
+    output_tuple = compare_exact("Pneumo_capsular_data/group3_capsular_seqs.fasta", "Pneumo_capsular_data/group3_capsular_CDS.fasta", "ggCaller_outputs/v1.3.0/comm_084d075/fragmented_group3_gene_calls.ffn", "ggc",
+                                 90, 1.3)
 
 
 
