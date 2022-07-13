@@ -113,15 +113,15 @@ def find_extra_same_name(ref_fasta, query_fasta, aa=False):
     if aa == True:
         with open(query_fasta, "r") as f:
             for record in SeqIO.parse(f, "fasta"):
-                if "-" in str(record.id):
-                    continue
+                # if "-" in str(record.id):
+                #     continue
                 query_ids[str((record.seq).translate())] = str(record.seq)
                 query_list.add(str((record.seq).translate()))
     else:
         with open(query_fasta, "r") as f:
             for record in SeqIO.parse(f, "fasta"):
-                if "-" in str(record.id):
-                    continue
+                # if "-" in str(record.id):
+                #     continue
                 query_ids[str(record.seq)] = str(record.seq)
                 query_list.add(str(record.seq))
 
@@ -132,6 +132,29 @@ def find_extra_same_name(ref_fasta, query_fasta, aa=False):
     query_list = [query_ids[seq] for seq in query_list if seq not in found]
 
     return query_list
+
+def find_gene_locs(ref_fasta, gene_fasta):
+    ref_dict = {}
+    gene_dict = {}
+
+    with open(ref_fasta, "r") as f:
+        for record in SeqIO.parse(f, "fasta"):
+            ref_dict[str(record.id)] = str(record.seq)
+    
+    with open(gene_fasta, "r") as p:
+        for record in SeqIO.parse(p, "fasta"):
+            found = False
+            for id, ref_seq in ref_dict.items():
+                index = ref_seq.find(str(record.seq))
+                if index == -1:
+                    index = ref_seq.find(str(record.seq.reverse_complement()))
+                if index != -1:
+                    found = True
+                if found == True:
+                    gene_dict[str(record.id)] = (id, (index, index + len(record.seq)))
+                    break
+
+    return gene_dict
 
 def main():
     options = get_options()
