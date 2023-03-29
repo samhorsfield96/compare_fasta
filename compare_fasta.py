@@ -402,6 +402,7 @@ def compare_exact(genome_fasta, ref_fasta, query_fasta, caller_type, min_size, g
                     total_unmatched_query_records += 1
                     unmatched = (colour, prime3_dict[prime3_key])
                     unmatched_query_list.append(unmatched)
+                #propor_length = len(seq) / len(ref_seq)
                 prop_length.append(len(seq) / len(ref_seq))
             else:
                 total_unmatched_query_records += 1
@@ -427,12 +428,17 @@ def compare_exact(genome_fasta, ref_fasta, query_fasta, caller_type, min_size, g
     print("Precision: {}".format(precision))
     print("Mean proportion of ORF length: {}".format(mean_prop_length))
     print("Stdev proportion of ORF length: {}".format(stdev_prop_length))
-    print("unmatched_ref_list:")
-    print(unmatched_ref_list)
-    print("unmatched_query_list:")
-    print(unmatched_query_list)
-    print("incorrect_query_list:")
-    print(incorrect_query_list)
+    #print("unmatched_ref_list:")
+    #print(unmatched_ref_list)
+    #print("unmatched_query_list:")
+    #print(unmatched_query_list)
+    #print("incorrect_query_list:")
+    #print(incorrect_query_list)
+
+    with open("length_proportions.txt", "w") as f:
+        for entry in prop_length:
+            f.write(str(entry) + "\n")
+
     return(unmatched_ref_list, unmatched_query_list, incorrect_query_list)
 
 def main():
@@ -454,7 +460,7 @@ def main():
 
 if __name__ == '__main__':
     main()
-    #output_tuple = compare_exact("Pneumo_capsular_data/group3_capsular_seqs.fasta", "Pneumo_capsular_data/group3_capsular_CDS.fasta", "ggCaller_outputs/v1.3.0/comm_084d075/fragmented_group3_gene_calls.ffn", "ggc",
+    #output_tuple = compare_exact("Pneumo_capsular_data/group3_capsular_seqs.fasta", "Pneumo_capsular_data/group3_capsular_CDS.fasta", "ggCaller_publication/ggc_group3_original_new.ffn", "ggc",
                                  #90, 1.3)
 
 
