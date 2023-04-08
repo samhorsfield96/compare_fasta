@@ -217,9 +217,8 @@ def compare_3prime(genome_fasta, ref_fasta, query_fasta, caller_type, min_size, 
     elif caller_type == "pan":
         # parse query_fasta
         for rec in SeqIO.parse(query_fasta, "fasta"):
-            description = (rec.description).split("_")
-            id_num = int(description[0])
-            id = id_dict[id_num]
+            description = (rec.id).split("_")
+            id = description[0]
 
             # look for the 3prime index of the string
             start_index = genome_rec[id].find(str(rec.seq))
@@ -418,7 +417,7 @@ def compare_exact(genome_fasta, ref_fasta, query_fasta, caller_type, min_size, g
     elif caller_type == "prod":
         # parse query_fasta
         for rec in SeqIO.parse(query_fasta, "fasta"):
-            description = (rec.description).split("_")
+            description = (rec.id).split("_")
             id = description[0]
 
             # look for the 3prime index of the string
@@ -435,9 +434,8 @@ def compare_exact(genome_fasta, ref_fasta, query_fasta, caller_type, min_size, g
     elif caller_type == "pan":
         # parse query_fasta
         for rec in SeqIO.parse(query_fasta, "fasta"):
-            description = (rec.description).split("_")
-            id_num = int(description[0])
-            id = id_dict[id_num]
+            description = (rec.id).split("_")
+            id = description[0]
 
             # look for the 3prime index of the string
             start_index = genome_rec[id].find(str(rec.seq))
@@ -516,7 +514,7 @@ def compare_exact(genome_fasta, ref_fasta, query_fasta, caller_type, min_size, g
 
 def main():
     options = get_options()
-    if options.caller not in ("ggc", "prod"):
+    if options.caller not in ("ggc", "prod", "pan"):
         print("Please specify --caller as either \'prod\', \'ggc\' or \'pan\'")
         return 1
     else:
