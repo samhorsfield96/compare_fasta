@@ -1,0 +1,8 @@
+Total_true	3347
+Total_called	6837
+TP	1822
+FP	5015
+FN	1525
+Artifical	0
+Recall	0.5443680908276068
+Precision	0.2664911510896592

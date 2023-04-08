@@ -1,0 +1,10 @@
+Total_true	27
+Total_called	32
+TP	17
+FP	15
+FN	10
+Artifical	0
+Recall	0.6296296296296297
+Precision	0.53125
+Mean_len_prop	0.9843249033965255
+Stdev_len_prop	0.04723823465702876
