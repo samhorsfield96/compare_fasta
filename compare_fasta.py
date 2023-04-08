@@ -499,7 +499,7 @@ def compare_exact(genome_fasta, ref_fasta, query_fasta, caller_type, min_size, g
     # print false positives
     DNA_records = []
     for entry in unmatched_query_list:
-        DNA_records.append(SeqRecord(Seq(entry[1]), id=entry[0], description="Len_diff = {}".format(entry[2])))
+        DNA_records.append(SeqRecord(Seq(entry[1]), id=entry[0] + "_Lendiff={}".format(entry[2]), description=""))
     SeqIO.write(DNA_records, outpref + "_FP.fasta", "fasta")
 
     # print artificial
