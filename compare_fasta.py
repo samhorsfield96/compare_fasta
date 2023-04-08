@@ -211,8 +211,8 @@ def compare_3prime(genome_fasta, ref_fasta, query_fasta, caller_type, min_size, 
                 prime3 = start_index + (len(str(rec.seq)) - 1)
             if remove_invalid(str(rec.seq)) and "N" not in str(rec.seq) and prime3 not in query_rec[id]:
                 query_rec[id][prime3] = str(rec.seq)
-            else:
-                incorrect_query_list.append((id, str(rec.seq)))
+            # else:
+            #     incorrect_query_list.append((id, str(rec.seq)))
 
     elif caller_type == "pan":
         # parse query_fasta
@@ -228,8 +228,8 @@ def compare_3prime(genome_fasta, ref_fasta, query_fasta, caller_type, min_size, 
                 prime3 = start_index + (len(str(rec.seq)) - 1)
             if remove_invalid(str(rec.seq)) and "N" not in str(rec.seq) and prime3 not in query_rec[id]:
                 query_rec[id][prime3] = str(rec.seq)
-            else:
-                incorrect_query_list.append((id, str(rec.seq)))
+            # else:
+            #     incorrect_query_list.append((id, str(rec.seq)))
 
     # iterate over query_rec, count number of times each 3prime match found
     for colour, prime3_dict in query_rec.items():
@@ -428,8 +428,8 @@ def compare_exact(genome_fasta, ref_fasta, query_fasta, caller_type, min_size, g
                 prime3 = start_index + (len(str(rec.seq)) - 1)
             if remove_invalid(str(rec.seq)) and "N" not in str(rec.seq) and prime3 not in query_rec[id]:
                 query_rec[id][prime3] = str(rec.seq)
-            else:
-                incorrect_query_list.append((id, str(rec.seq)))
+            # else:
+            #     incorrect_query_list.append((id, str(rec.seq)))
 
     elif caller_type == "pan":
         # parse query_fasta
@@ -445,10 +445,11 @@ def compare_exact(genome_fasta, ref_fasta, query_fasta, caller_type, min_size, g
                 prime3 = start_index + (len(str(rec.seq)) - 1)
             if remove_invalid(str(rec.seq)) and "N" not in str(rec.seq) and prime3 not in query_rec[id]:
                 query_rec[id][prime3] = str(rec.seq)
-            else:
-                incorrect_query_list.append((id, str(rec.seq)))
+            # else:
+            #     incorrect_query_list.append((id, str(rec.seq)))
 
     prop_length = []
+    actual_length = []
     # iterate over query_rec, count number of times each 3prime match found
     for colour, prime3_dict in query_rec.items():
         for prime3_key, seq in prime3_dict.items():
@@ -458,15 +459,14 @@ def compare_exact(genome_fasta, ref_fasta, query_fasta, caller_type, min_size, g
                     total_correct_query_records += 1
                     unmatched_ref_list.remove((colour, ref_rec[colour][prime3_key]))
                 else:
-
+                    length_diff = len(ref_seq) - len(seq)
                     total_unmatched_query_records += 1
-                    unmatched = (colour, prime3_dict[prime3_key])
+                    unmatched = (colour, prime3_dict[prime3_key], length_diff)
                     unmatched_query_list.append(unmatched)
-                #propor_length = len(seq) / len(ref_seq)
                 prop_length.append(len(seq) / len(ref_seq))
             else:
                 total_unmatched_query_records += 1
-                unmatched = (colour, prime3_dict[prime3_key])
+                unmatched = (colour, prime3_dict[prime3_key], "NA")
                 unmatched_query_list.append(unmatched)
             total_query_records += 1
 
@@ -499,7 +499,7 @@ def compare_exact(genome_fasta, ref_fasta, query_fasta, caller_type, min_size, g
     # print false positives
     DNA_records = []
     for entry in unmatched_query_list:
-        DNA_records.append(SeqRecord(Seq(entry[1]), id=entry[0], description=""))
+        DNA_records.append(SeqRecord(Seq(entry[1]), id=entry[0], description="Len_diff = {}".format(entry[2])))
     SeqIO.write(DNA_records, outpref + "_FP.fasta", "fasta")
 
     # print artificial
@@ -531,8 +531,8 @@ def main():
 
 if __name__ == '__main__':
     main()
-    # output_tuple = compare_exact("Pneumo_capsular_data/group3_capsular_seqs.fasta", "Pneumo_capsular_data/group3_capsular_CDS.fasta", "ggCaller_publication/ggc_group3_unfragmented.ffn", "ggc",
-    #                              90, 1.3, "test")
+    # output_tuple = compare_exact("Pneumo_capsular_data/all_capsular_seqs.fasta", "Pneumo_capsular_data/all_capsular_CDS.fasta", "prokka_panaroo_outputs/CBL_all.fasta", "pan",
+    #                               90, -1.0, "_pan_test")
     # output_tuple = compare_3prime("Pneumo_capsular_data/group3_capsular_seqs.fasta", "Pneumo_capsular_data/group3_capsular_CDS.fasta", "ggCaller_publication/ggc_group3_unfragmented.ffn", "ggc",
     #                              90, 1.3, "test")
 

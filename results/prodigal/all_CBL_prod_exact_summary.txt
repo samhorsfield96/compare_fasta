@@ -1,0 +1,10 @@
+Total_true	1469
+Total_called	2002
+TP	1251
+FP	751
+FN	218
+Artifical	0
+Recall	0.8515997277059224
+Precision	0.6248751248751249
+Mean_len_prop	0.9982407275231319
+Stdev_len_prop	0.015089181293024851
