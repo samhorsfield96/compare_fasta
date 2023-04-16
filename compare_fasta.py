@@ -590,9 +590,9 @@ def compare_exact2(genome_fasta, ref_fasta, query_fasta1, caller_type1, min_size
         if prime3 != -1 and remove_invalid(str(rec.seq)) and "N" not in str(rec.seq) and prime3 not in ref_rec[id]:
             ref_rec[id][prime3] = str(rec.seq)
             total_ref_records1 += 1
-            unmatched_ref_list1.append((id, str(rec.seq)))
+            unmatched_ref_list1.append((id, str(rec.seq), prime3))
             total_ref_records2 += 1
-            unmatched_ref_list2.append((id, str(rec.seq)))
+            unmatched_ref_list2.append((id, str(rec.seq), prime3))
 
     # run for caller 1
     if caller_type1 == "ggc":
@@ -729,7 +729,7 @@ def compare_exact2(genome_fasta, ref_fasta, query_fasta1, caller_type1, min_size
                     unmatched = (colour, prime3_dict[prime3_key], length_diff)
                     unmatched_query_list1.append(unmatched)
                     unmatched_query_dict1[colour][prime3_key] = (prime3_dict[prime3_key], length_diff, ref_seq)
-                unmatched_ref_list1.remove((colour, ref_rec[colour][prime3_key]))
+                unmatched_ref_list1.remove((colour, ref_rec[colour][prime3_key], prime3_key))
                 prop_length1.append(len(seq) / len(ref_seq))
             else:
                 total_unmatched_query_records1 += 1
@@ -875,7 +875,7 @@ def compare_exact2(genome_fasta, ref_fasta, query_fasta1, caller_type1, min_size
                     unmatched = (colour, prime3_dict[prime3_key], length_diff)
                     unmatched_query_list2.append(unmatched)
                     unmatched_query_dict2[colour][prime3_key] = (prime3_dict[prime3_key], length_diff, ref_seq)
-                unmatched_ref_list2.remove((colour, ref_rec[colour][prime3_key]))
+                unmatched_ref_list2.remove((colour, ref_rec[colour][prime3_key], prime3_key))
                 prop_length2.append(len(seq) / len(ref_seq))
             else:
                 total_unmatched_query_records2 += 1
@@ -895,38 +895,42 @@ def compare_exact2(genome_fasta, ref_fasta, query_fasta1, caller_type1, min_size
             seq1 = seq_tup[0]
             len_diff1 = seq_tup[1]
             ref_seq = seq_tup[2]
+            dist_end = min([prime3_key, len(genome_rec[colour]) - prime3_key])
             if prime3_key in unmatched_query_dict2[colour]:
                 seq2 = unmatched_query_dict2[colour][prime3_key][0]
                 len_diff2 = unmatched_query_dict2[colour][prime3_key][1]
                 len_diff = len(seq2) / len(seq1)
-                inter_caller_comp_FP.append((colour, ref_seq, seq1, len_diff1, seq2, len_diff2, len_diff))
+                inter_caller_comp_FP.append((colour, ref_seq, seq1, len_diff1, seq2, len_diff2, len_diff, dist_end))
                 if len_diff1 != "NA":
-                    inter_caller_comp_FN.append((colour, ref_seq, seq1, len_diff1, seq2, len_diff2, len_diff))
+                    inter_caller_comp_FN.append((colour, ref_seq, seq1, len_diff1, seq2, len_diff2, len_diff, dist_end))
             else:
-                inter_caller_comp_FP.append((colour, ref_seq, seq1, len_diff1, "NA", "NA", "NA"))
+                inter_caller_comp_FP.append((colour, ref_seq, seq1, len_diff1, "NA", "NA", "NA", dist_end))
                 if len_diff1 != "NA":
-                    inter_caller_comp_FN.append((colour, ref_seq, seq1, len_diff1, "NA", "NA", "NA"))
+                    inter_caller_comp_FN.append((colour, ref_seq, seq1, len_diff1, "NA", "NA", "NA", dist_end))
 
     for colour, prime3_dict in unmatched_query_dict2.items():
         for prime3_key, seq_tup in prime3_dict.items():
             seq2 = seq_tup[0]
             len_diff2 = seq_tup[1]
             ref_seq = seq_tup[2]
+            dist_end = min([prime3_key, len(genome_rec[colour]) - prime3_key])
             if prime3_key not in unmatched_query_dict1[colour]:
-                inter_caller_comp_FP.append((colour, ref_seq, "NA", "NA", seq2, len_diff2, "NA"))
+                inter_caller_comp_FP.append((colour, ref_seq, "NA", "NA", seq2, len_diff2, "NA", dist_end))
                 if len_diff2 != "NA":
-                    inter_caller_comp_FN.append((colour, ref_seq, "NA", "NA", seq2, len_diff2, "NA"))
+                    inter_caller_comp_FN.append((colour, ref_seq, "NA", "NA", seq2, len_diff2, "NA", dist_end))
 
     #compare false negatives
     for entry in unmatched_ref_list1:
+        dist_end = min([entry[2], len(genome_rec[entry[0]]) - entry[2]])
         if entry in unmatched_ref_list2:
-            inter_caller_comp_FN.append((entry[0], entry[1], entry[1], "NA", entry[1], "NA", "NA"))
+            inter_caller_comp_FN.append((entry[0], entry[1], entry[1], "NA", entry[1], "NA", "NA", dist_end))
         else:
-            inter_caller_comp_FN.append((entry[0], entry[1], entry[1], "NA", "NA", "NA", "NA"))
+            inter_caller_comp_FN.append((entry[0], entry[1], entry[1], "NA", "NA", "NA", "NA", dist_end))
 
     for entry in unmatched_ref_list2:
+        dist_end = min([entry[2], len(genome_rec[entry[0]]) - entry[2]])
         if entry not in unmatched_ref_list1:
-            inter_caller_comp_FN.append((entry[0], entry[1], "NA", "NA", entry[1], "NA", "NA"))
+            inter_caller_comp_FN.append((entry[0], entry[1], "NA", "NA", entry[1], "NA", "NA", dist_end))
 
     # compare artifical calls
     inter_caller_comp_ART = []
@@ -941,14 +945,14 @@ def compare_exact2(genome_fasta, ref_fasta, query_fasta1, caller_type1, min_size
             inter_caller_comp_ART.append((entry[0], "NA", entry[1]))
 
     with open(outpref + "_FP.txt", "w") as f:
-        f.write("Colour\tRef_seq\tCaller1_seq\tCaller1_ref_lendiff\tCaller2_seq\tCaller2_ref_lendiff\tInter_lendiff\n")
+        f.write("Colour\tRef_seq\tCaller1_seq\tCaller1_ref_lendiff\tCaller2_seq\tCaller2_ref_lendiff\tInter_lendiff\tprime3_dist_end\n")
         for entry in inter_caller_comp_FP:
-            f.write("{}\t{}\t{}\t{}\t{}\t{}\t{}\n".format(entry[0], entry[1], entry[2], entry[3], entry[4],entry[5], entry[6]))
+            f.write("{}\t{}\t{}\t{}\t{}\t{}\t{}\n".format(entry[0], entry[1], entry[2], entry[3], entry[4],entry[5], entry[6], entry[7]))
 
     with open(outpref + "_FN.txt", "w") as f:
-        f.write("Colour\tRef_seq\tCaller1_seq\tCaller1_ref_lendiff\tCaller2_seq\tCaller2_ref_lendiff\tInter_lendiff\n")
+        f.write("Colour\tRef_seq\tCaller1_seq\tCaller1_ref_lendiff\tCaller2_seq\tCaller2_ref_lendiff\tInter_lendiff\tprime3_dist_end\n")
         for entry in inter_caller_comp_FN:
-            f.write("{}\t{}\t{}\t{}\t{}\t{}\t{}\n".format(entry[0], entry[1], entry[2], entry[3], entry[4],entry[5], entry[6]))
+            f.write("{}\t{}\t{}\t{}\t{}\t{}\t{}\n".format(entry[0], entry[1], entry[2], entry[3], entry[4],entry[5], entry[6], entry[7]))
 
     with open(outpref + "_ART.txt", "w") as f:
         f.write("Colour\tCaller1_seq\tCaller2_seq\n")

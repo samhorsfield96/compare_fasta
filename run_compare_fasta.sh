@@ -1,19 +1,19 @@
 # ggcaller
 #python compare_fasta.py --seq Pneumo_capsular_data/group1_capsular_seqs.fasta --genes Pneumo_capsular_data/group1_capsular_CDS.fasta --query ggCaller_outputs/v1.3.4/CBL_group1.ffn --caller ggc --vers 1.3 --outpref results/group1_CBL_ggc_1_3_4
 #python compare_fasta.py --seq Pneumo_capsular_data/group1_capsular_seqs.fasta --genes Pneumo_capsular_data/group1_capsular_CDS.fasta --query ggCaller_outputs/v1.3.4/CBL_group1.ffn --caller ggc --vers 1.3 --outpref results/group1_CBL_ggc_1_3_4_exact --exact
-
+#
 #python compare_fasta.py --seq Pneumo_capsular_data/group2_capsular_seqs.fasta --genes Pneumo_capsular_data/group2_capsular_CDS.fasta --query ggCaller_outputs/v1.3.4/CBL_group2.ffn --caller ggc --vers 1.3 --outpref results/group2_CBL_ggc_1_3_4
 #python compare_fasta.py --seq Pneumo_capsular_data/group2_capsular_seqs.fasta --genes Pneumo_capsular_data/group2_capsular_CDS.fasta --query ggCaller_outputs/v1.3.4/CBL_group2.ffn --caller ggc --vers 1.3 --outpref results/group2_CBL_ggc_1_3_4_exact --exact
-
+#
 #python compare_fasta.py --seq Pneumo_capsular_data/group3_capsular_seqs.fasta --genes Pneumo_capsular_data/group3_capsular_CDS.fasta --query ggCaller_outputs/v1.3.4/CBL_group3.ffn --caller ggc --vers 1.3 --outpref results/group3_CBL_ggc_1_3_4
 #python compare_fasta.py --seq Pneumo_capsular_data/group3_capsular_seqs.fasta --genes Pneumo_capsular_data/group3_capsular_CDS.fasta --query ggCaller_outputs/v1.3.4/CBL_group3.ffn --caller ggc --vers 1.3 --outpref results/group3_CBL_ggc_1_3_4_exact --exact
-
+#
 #python compare_fasta.py --seq Pneumo_capsular_data/all_capsular_seqs.fasta --genes Pneumo_capsular_data/all_capsular_CDS.fasta --query ggCaller_outputs/v1.3.4/CBL_all.ffn --caller ggc --vers 1.3 --outpref results/all_CBL_ggc_1_3_4
 #python compare_fasta.py --seq Pneumo_capsular_data/all_capsular_seqs.fasta --genes Pneumo_capsular_data/all_capsular_CDS.fasta --query ggCaller_outputs/v1.3.4/CBL_all.ffn --caller ggc --vers 1.3 --outpref results/all_CBL_ggc_1_3_4_exact --exact
-
+#
 #python compare_fasta.py --seq Plasmid_data/clique_556_seqs_all.fasta --genes Plasmid_data/clique_556_CDS_all.fasta --query ggCaller_outputs/v1.3.4/Undiverse_plasmids.ffn --caller ggc --vers 1.3 --outpref results/Undiverse_plasmids_ggc_1_3_4
 #python compare_fasta.py --seq Plasmid_data/clique_556_seqs_all.fasta --genes Plasmid_data/clique_556_CDS_all.fasta --query ggCaller_outputs/v1.3.4/Undiverse_plasmids.ffn --caller ggc --vers 1.3 --outpref results/Undiverse_plasmids_ggc_1_3_4_exact --exact
-
+#
 #python compare_fasta.py --seq Plasmid_data/clique_119_230_372_seq_all.fasta --genes Plasmid_data/clique_119_230_372_CDS_all.fasta --query ggCaller_outputs/v1.3.4/Diverse_plasmids.ffn --caller ggc --vers 1.3 --outpref results/Diverse_plasmids_ggc_1_3_4
 #python compare_fasta.py --seq Plasmid_data/clique_119_230_372_seq_all.fasta --genes Plasmid_data/clique_119_230_372_CDS_all.fasta --query ggCaller_outputs/v1.3.4/Diverse_plasmids.ffn --caller ggc --vers 1.3 --outpref results/Diverse_plasmids_ggc_1_3_4_exact --exact
 

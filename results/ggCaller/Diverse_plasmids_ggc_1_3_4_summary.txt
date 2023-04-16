@@ -1,8 +1,8 @@
 Total_true	3954
-Total_called	4887
+Total_called	4883
 TP	3772
-FP	1115
+FP	1111
 FN	182
 Artifical	13
 Recall	0.9539706626201315
-Precision	0.7718436668712911
+Precision	0.7724759369240222
