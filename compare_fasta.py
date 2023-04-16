@@ -947,12 +947,12 @@ def compare_exact2(genome_fasta, ref_fasta, query_fasta1, caller_type1, min_size
     with open(outpref + "_FP.txt", "w") as f:
         f.write("Colour\tRef_seq\tCaller1_seq\tCaller1_ref_lendiff\tCaller2_seq\tCaller2_ref_lendiff\tInter_lendiff\tprime3_dist_end\n")
         for entry in inter_caller_comp_FP:
-            f.write("{}\t{}\t{}\t{}\t{}\t{}\t{}\n".format(entry[0], entry[1], entry[2], entry[3], entry[4],entry[5], entry[6], entry[7]))
+            f.write("{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\n".format(entry[0], entry[1], entry[2], entry[3], entry[4],entry[5], entry[6], entry[7]))
 
     with open(outpref + "_FN.txt", "w") as f:
         f.write("Colour\tRef_seq\tCaller1_seq\tCaller1_ref_lendiff\tCaller2_seq\tCaller2_ref_lendiff\tInter_lendiff\tprime3_dist_end\n")
         for entry in inter_caller_comp_FN:
-            f.write("{}\t{}\t{}\t{}\t{}\t{}\t{}\n".format(entry[0], entry[1], entry[2], entry[3], entry[4],entry[5], entry[6], entry[7]))
+            f.write("{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\n".format(entry[0], entry[1], entry[2], entry[3], entry[4], entry[5], entry[6], entry[7]))
 
     with open(outpref + "_ART.txt", "w") as f:
         f.write("Colour\tCaller1_seq\tCaller2_seq\n")
