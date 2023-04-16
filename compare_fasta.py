@@ -530,7 +530,8 @@ def compare_exact2(genome_fasta, ref_fasta, query_fasta1, caller_type1, min_size
     genome_list = []
     genome_rec = {}
     ref_rec = {}
-    query_rec = {}
+    query_rec1 = {}
+    query_rec2 = {}
 
     # data for query1
     total_correct_query_records1 = 0
@@ -563,7 +564,8 @@ def compare_exact2(genome_fasta, ref_fasta, query_fasta1, caller_type1, min_size
             genome_list.append(id)
             genome_rec[id] = str(rec.seq)
             ref_rec[id] = {}
-            query_rec[id] = {}
+            query_rec1[id] = {}
+            query_rec2[id] = {}
             id_dict[id_num] = id
             id_num += 1
         # if genome made up of multiple contigs, just concatenate the string together to enable searching.
@@ -612,7 +614,7 @@ def compare_exact2(genome_fasta, ref_fasta, query_fasta1, caller_type1, min_size
 
                         # determine if gene sequence is real, if not add to incorrect_query_list
                         if prime3 != -1:
-                            query_rec[id][prime3] = str(rec.seq)
+                            query_rec1[id][prime3] = str(rec.seq)
                         else:
                             incorrect_query_list1.append((id, str(rec.seq)))
         elif 1 <= ggcaller_version1 < 1.2:
@@ -633,7 +635,7 @@ def compare_exact2(genome_fasta, ref_fasta, query_fasta1, caller_type1, min_size
 
                         # determine if gene sequence is real, if not add to incorrect_query_list
                         if prime3 != -1:
-                            query_rec[id][prime3] = str(rec.seq)
+                            query_rec1[id][prime3] = str(rec.seq)
                         else:
                             incorrect_query_list1.append((id, str(rec.seq)))
         elif 1.2 <= ggcaller_version1 < 1.3:
@@ -654,7 +656,7 @@ def compare_exact2(genome_fasta, ref_fasta, query_fasta1, caller_type1, min_size
 
                         # determine if gene sequence is real, if not add to incorrect_query_list
                         if prime3 != -1:
-                            query_rec[id][prime3] = str(rec.seq)
+                            query_rec1[id][prime3] = str(rec.seq)
                         else:
                             incorrect_query_list1.append((id, str(rec.seq)))
         elif 1.3 <= ggcaller_version1 < 1.4:
@@ -671,7 +673,7 @@ def compare_exact2(genome_fasta, ref_fasta, query_fasta1, caller_type1, min_size
 
                 # determine if gene sequence is real, if not add to incorrect_query_list
                 if prime3 != -1:
-                    query_rec[id][prime3] = str(rec.seq)
+                    query_rec1[id][prime3] = str(rec.seq)
                 else:
                     incorrect_query_list1.append((id, str(rec.seq)))
         else:
@@ -689,8 +691,8 @@ def compare_exact2(genome_fasta, ref_fasta, query_fasta1, caller_type1, min_size
                 prime3 = genome_rec[id].find(str(rec.seq.reverse_complement()))
             else:
                 prime3 = start_index + (len(str(rec.seq)) - 1)
-            if remove_invalid(str(rec.seq)) and "N" not in str(rec.seq) and prime3 not in query_rec[id]:
-                query_rec[id][prime3] = str(rec.seq)
+            if remove_invalid(str(rec.seq)) and "N" not in str(rec.seq) and prime3 not in query_rec1[id]:
+                query_rec1[id][prime3] = str(rec.seq)
             # else:
             #     incorrect_query_list.append((id, str(rec.seq)))
 
@@ -706,15 +708,15 @@ def compare_exact2(genome_fasta, ref_fasta, query_fasta1, caller_type1, min_size
                 prime3 = genome_rec[id].find(str(rec.seq.reverse_complement()))
             else:
                 prime3 = start_index + (len(str(rec.seq)) - 1)
-            if remove_invalid(str(rec.seq)) and "N" not in str(rec.seq) and prime3 not in query_rec[id]:
-                query_rec[id][prime3] = str(rec.seq)
+            if remove_invalid(str(rec.seq)) and "N" not in str(rec.seq) and prime3 not in query_rec1[id]:
+                query_rec1[id][prime3] = str(rec.seq)
             # else:
             #     incorrect_query_list.append((id, str(rec.seq)))
 
     prop_length1 = []
     unmatched_query_dict1 = {}
     # iterate over query_rec, count number of times each 3prime match found
-    for colour, prime3_dict in query_rec.items():
+    for colour, prime3_dict in query_rec1.items():
         unmatched_query_dict1[colour] = {}
         for prime3_key, seq in prime3_dict.items():
             if prime3_key in ref_rec[colour]:
@@ -758,7 +760,7 @@ def compare_exact2(genome_fasta, ref_fasta, query_fasta1, caller_type1, min_size
 
                         # determine if gene sequence is real, if not add to incorrect_query_list
                         if prime3 != -1:
-                            query_rec[id][prime3] = str(rec.seq)
+                            query_rec2[id][prime3] = str(rec.seq)
                         else:
                             incorrect_query_list2.append((id, str(rec.seq)))
         elif 1 <= ggcaller_version2 < 1.2:
@@ -779,7 +781,7 @@ def compare_exact2(genome_fasta, ref_fasta, query_fasta1, caller_type1, min_size
 
                         # determine if gene sequence is real, if not add to incorrect_query_list
                         if prime3 != -1:
-                            query_rec[id][prime3] = str(rec.seq)
+                            query_rec2[id][prime3] = str(rec.seq)
                         else:
                             incorrect_query_list2.append((id, str(rec.seq)))
         elif 1.2 <= ggcaller_version2 < 1.3:
@@ -800,7 +802,7 @@ def compare_exact2(genome_fasta, ref_fasta, query_fasta1, caller_type1, min_size
 
                         # determine if gene sequence is real, if not add to incorrect_query_list
                         if prime3 != -1:
-                            query_rec[id][prime3] = str(rec.seq)
+                            query_rec2[id][prime3] = str(rec.seq)
                         else:
                             incorrect_query_list2.append((id, str(rec.seq)))
         elif 1.3 <= ggcaller_version2 < 1.4:
@@ -817,7 +819,7 @@ def compare_exact2(genome_fasta, ref_fasta, query_fasta1, caller_type1, min_size
 
                 # determine if gene sequence is real, if not add to incorrect_query_list
                 if prime3 != -1:
-                    query_rec[id][prime3] = str(rec.seq)
+                    query_rec2[id][prime3] = str(rec.seq)
                 else:
                     incorrect_query_list2.append((id, str(rec.seq)))
         else:
@@ -835,8 +837,8 @@ def compare_exact2(genome_fasta, ref_fasta, query_fasta1, caller_type1, min_size
                 prime3 = genome_rec[id].find(str(rec.seq.reverse_complement()))
             else:
                 prime3 = start_index + (len(str(rec.seq)) - 1)
-            if remove_invalid(str(rec.seq)) and "N" not in str(rec.seq) and prime3 not in query_rec[id]:
-                query_rec[id][prime3] = str(rec.seq)
+            if remove_invalid(str(rec.seq)) and "N" not in str(rec.seq) and prime3 not in query_rec2[id]:
+                query_rec2[id][prime3] = str(rec.seq)
             # else:
             #     incorrect_query_list.append((id, str(rec.seq)))
 
@@ -852,15 +854,15 @@ def compare_exact2(genome_fasta, ref_fasta, query_fasta1, caller_type1, min_size
                 prime3 = genome_rec[id].find(str(rec.seq.reverse_complement()))
             else:
                 prime3 = start_index + (len(str(rec.seq)) - 1)
-            if remove_invalid(str(rec.seq)) and "N" not in str(rec.seq) and prime3 not in query_rec[id]:
-                query_rec[id][prime3] = str(rec.seq)
+            if remove_invalid(str(rec.seq)) and "N" not in str(rec.seq) and prime3 not in query_rec2[id]:
+                query_rec2[id][prime3] = str(rec.seq)
             # else:
             #     incorrect_query_list.append((id, str(rec.seq)))
 
     prop_length2 = []
     unmatched_query_dict2 = {}
     # iterate over query_rec, count number of times each 3prime match found
-    for colour, prime3_dict in query_rec.items():
+    for colour, prime3_dict in query_rec2.items():
         unmatched_query_dict2[colour] = {}
         for prime3_key, seq in prime3_dict.items():
             if prime3_key in ref_rec[colour]:
@@ -918,13 +920,13 @@ def compare_exact2(genome_fasta, ref_fasta, query_fasta1, caller_type1, min_size
     #compare false negatives
     for entry in unmatched_ref_list1:
         if entry in unmatched_ref_list2:
-            inter_caller_comp_FN.append((entry[0], entry[1], "NA", "NA", entry[1], "NA", "NA"))
+            inter_caller_comp_FN.append((entry[0], entry[1], entry[1], "NA", entry[1], "NA", "NA"))
         else:
-            inter_caller_comp_FN.append((entry[0], entry[1], "NA", "NA", "NA", "NA", "NA"))
+            inter_caller_comp_FN.append((entry[0], entry[1], entry[1], "NA", "NA", "NA", "NA"))
 
     for entry in unmatched_ref_list2:
         if entry not in unmatched_ref_list1:
-            inter_caller_comp_FN.append((entry[0], "NA", "NA", "NA", entry[1], "NA", "NA"))
+            inter_caller_comp_FN.append((entry[0], entry[1], "NA", "NA", entry[1], "NA", "NA"))
 
     # compare artifical calls
     inter_caller_comp_ART = []
@@ -979,8 +981,8 @@ if __name__ == '__main__':
     #                               90, -1.0, "_pan_test")
     # output_tuple = compare_3prime("Pneumo_capsular_data/group3_capsular_seqs.fasta", "Pneumo_capsular_data/group3_capsular_CDS.fasta", "ggCaller_publication/ggc_group3_unfragmented.ffn", "ggc",
     #                              90, 1.3, "test")
-    # compare_exact2("Pneumo_capsular_data/group3_capsular_seqs.fasta", "Pneumo_capsular_data/group3_capsular_CDS.fasta", "prokka_panaroo_outputs/CBL_group3.fasta", "pan", 90,
-    #                -1.0, "ggCaller_outputs/v1.3.4/CBL_group3.ffn", "ggc", 1.3, "test_ggc_v_pan_comp")
+    # compare_exact2("Pneumo_capsular_data/all_capsular_seqs.fasta", "Pneumo_capsular_data/all_capsular_CDS.fasta", "prokka_panaroo_outputs/CBL_all.fasta", "pan", 90,
+    #                -1.0, "ggCaller_outputs/v1.3.4/CBL_all.ffn", "ggc", 1.3, "test_ggc_v_pan_comp")
 
 
 
