@@ -86,6 +86,7 @@ def compare_3prime(genome_fasta, ref_fasta, query_fasta, caller_type, min_size, 
     unmatched_query_list = []
     unmatched_ref_list = []
     incorrect_query_list = []
+    duplicated_query_list = []
 
     # parse genome_fasta
     id_dict = {}
@@ -148,10 +149,10 @@ def compare_3prime(genome_fasta, ref_fasta, query_fasta, caller_type, min_size, 
                             # check if already present, update with longer sequence, add shorter sequence to incorrect sequences
                             if prime3 in query_rec[id]:
                                 if len(query_rec[id][prime3]) < len(str(rec.seq)):
-                                    incorrect_query_list.append((id, query_rec[id][prime3]))
+                                    duplicated_query_list.append((id, query_rec[id][prime3]))
                                     query_rec[id][prime3] = str(rec.seq)
                                 else:
-                                    incorrect_query_list.append((id, str(rec.seq)))
+                                    duplicated_query_list.append((id, str(rec.seq)))
                             else:
                                 query_rec[id][prime3] = str(rec.seq)
                         else:
@@ -172,15 +173,15 @@ def compare_3prime(genome_fasta, ref_fasta, query_fasta, caller_type, min_size, 
                         else:
                             prime3 = start_index + (len(str(rec.seq)) - 1)
 
-                        # determine if gene sequence is real, if not add to incorrect_query_list
+                        # determine if gene sequence is real, if not add to duplicated_query_list
                         if prime3 != -1:
                             # check if already present, update with longer sequence, add shorter sequence to incorrect sequences
                             if prime3 in query_rec[id]:
                                 if len(query_rec[id][prime3]) < len(str(rec.seq)):
-                                    incorrect_query_list.append((id, query_rec[id][prime3]))
+                                    duplicated_query_list.append((id, query_rec[id][prime3]))
                                     query_rec[id][prime3] = str(rec.seq)
                                 else:
-                                    incorrect_query_list.append((id, str(rec.seq)))
+                                    duplicated_query_list.append((id, str(rec.seq)))
                             else:
                                 query_rec[id][prime3] = str(rec.seq)
                         else:
@@ -206,10 +207,10 @@ def compare_3prime(genome_fasta, ref_fasta, query_fasta, caller_type, min_size, 
                             # check if already present, update with longer sequence, add shorter sequence to incorrect sequences
                             if prime3 in query_rec[id]:
                                 if len(query_rec[id][prime3]) < len(str(rec.seq)):
-                                    incorrect_query_list.append((id, query_rec[id][prime3]))
+                                    duplicated_query_list.append((id, query_rec[id][prime3]))
                                     query_rec[id][prime3] = str(rec.seq)
                                 else:
-                                    incorrect_query_list.append((id, str(rec.seq)))
+                                    duplicated_query_list.append((id, str(rec.seq)))
                             else:
                                 query_rec[id][prime3] = str(rec.seq)
                         else:
@@ -228,15 +229,15 @@ def compare_3prime(genome_fasta, ref_fasta, query_fasta, caller_type, min_size, 
                 else:
                     prime3 = start_index + (len(str(rec.seq)) - 1)
 
-                # determine if gene sequence is real, if not add to incorrect_query_list
+                # determine if gene sequence is real, if not add to duplicated_query_list
                 if prime3 != -1:
                     # check if already present, update with longer sequence, add shorter sequence to incorrect sequences
                     if prime3 in query_rec[id]:
                         if len(query_rec[id][prime3]) < len(str(rec.seq)):
-                            incorrect_query_list.append((id, query_rec[id][prime3]))
+                            duplicated_query_list.append((id, query_rec[id][prime3]))
                             query_rec[id][prime3] = str(rec.seq)
                         else:
-                            incorrect_query_list.append((id, str(rec.seq)))
+                            duplicated_query_list.append((id, str(rec.seq)))
                     else:
                         query_rec[id][prime3] = str(rec.seq)
                 else:
@@ -258,6 +259,12 @@ def compare_3prime(genome_fasta, ref_fasta, query_fasta, caller_type, min_size, 
                 prime3 = start_index + (len(str(rec.seq)) - 1)
             if "N" not in str(rec.seq) and prime3 not in query_rec[id]:
                 query_rec[id][prime3] = str(rec.seq)
+            elif prime3 in query_rec[id]:
+                if len(query_rec[id][prime3]) < len(str(rec.seq)):
+                    duplicated_query_list.append((id, query_rec[id][prime3]))
+                    query_rec[id][prime3] = str(rec.seq)
+                else:
+                    duplicated_query_list.append((id, str(rec.seq)))
             else:
                 incorrect_query_list.append((id, str(rec.seq)))
 
@@ -275,6 +282,12 @@ def compare_3prime(genome_fasta, ref_fasta, query_fasta, caller_type, min_size, 
                 prime3 = start_index + (len(str(rec.seq)) - 1)
             if "N" not in str(rec.seq) and prime3 not in query_rec[id]:
                 query_rec[id][prime3] = str(rec.seq)
+            elif prime3 in query_rec[id]:
+                if len(query_rec[id][prime3]) < len(str(rec.seq)):
+                    duplicated_query_list.append((id, query_rec[id][prime3]))
+                    query_rec[id][prime3] = str(rec.seq)
+                else:
+                    duplicated_query_list.append((id, str(rec.seq)))
             else:
                 incorrect_query_list.append((id, str(rec.seq)))
 
@@ -291,6 +304,7 @@ def compare_3prime(genome_fasta, ref_fasta, query_fasta, caller_type, min_size, 
             total_query_records += 1
 
     total_query_records += len(incorrect_query_list)
+    total_query_records += len(duplicated_query_list)
 
     recall = total_correct_query_records / total_ref_records
     precision = total_correct_query_records / total_query_records
@@ -302,6 +316,7 @@ def compare_3prime(genome_fasta, ref_fasta, query_fasta, caller_type, min_size, 
         f.write("FP\t{}".format(len(unmatched_query_list)) + "\n")
         f.write("FN\t{}".format(total_ref_records - total_correct_query_records) + "\n")
         f.write("Artifical\t{}".format(len(incorrect_query_list)) + "\n")
+        f.write("Duplicated\t{}".format(len(duplicated_query_list)) + "\n")
         f.write("Recall\t{}".format(recall) + "\n")
         f.write("Precision\t{}".format(precision) + "\n")
 
@@ -323,6 +338,12 @@ def compare_3prime(genome_fasta, ref_fasta, query_fasta, caller_type, min_size, 
         DNA_records.append(SeqRecord(Seq(entry[1]), id=entry[0], description=""))
     SeqIO.write(DNA_records, outpref + "_ART.fasta", "fasta")
 
+    # print duplicated
+    DNA_records = []
+    for entry in duplicated_query_list:
+        DNA_records.append(SeqRecord(Seq(entry[1]), id=entry[0], description=""))
+    SeqIO.write(DNA_records, outpref + "_DUP.fasta", "fasta")
+
 def compare_exact(genome_fasta, ref_fasta, query_fasta, caller_type, min_size, ggcaller_version, outpref):
     # generate lists to hold gene coordinates
     genome_list = []
@@ -338,6 +359,7 @@ def compare_exact(genome_fasta, ref_fasta, query_fasta, caller_type, min_size, g
     unmatched_query_list = []
     unmatched_ref_list = []
     incorrect_query_list = []
+    duplicated_query_list = []
 
     # parse genome_fasta
     id_dict = {}
@@ -394,15 +416,15 @@ def compare_exact(genome_fasta, ref_fasta, query_fasta, caller_type, min_size, g
                         else:
                             prime3 = start_index + (len(str(rec.seq)) - 1)
 
-                        # determine if gene sequence is real, if not add to incorrect_query_list
+                        # determine if gene sequence is real, if not add to duplicated_query_list
                         if prime3 != -1:
                             # check if already present, update with longer sequence, add shorter sequence to incorrect sequences
                             if prime3 in query_rec[id]:
                                 if len(query_rec[id][prime3]) < len(str(rec.seq)):
-                                    incorrect_query_list.append((id, query_rec[id][prime3]))
+                                    duplicated_query_list.append((id, query_rec[id][prime3]))
                                     query_rec[id][prime3] = str(rec.seq)
                                 else:
-                                    incorrect_query_list.append((id, str(rec.seq)))
+                                    duplicated_query_list.append((id, str(rec.seq)))
                             else:
                                 query_rec[id][prime3] = str(rec.seq)
                         else:
@@ -423,15 +445,15 @@ def compare_exact(genome_fasta, ref_fasta, query_fasta, caller_type, min_size, g
                         else:
                             prime3 = start_index + (len(str(rec.seq)) - 1)
 
-                        # determine if gene sequence is real, if not add to incorrect_query_list
+                        # determine if gene sequence is real, if not add to duplicated_query_list
                         if prime3 != -1:
                             # check if already present, update with longer sequence, add shorter sequence to incorrect sequences
                             if prime3 in query_rec[id]:
                                 if len(query_rec[id][prime3]) < len(str(rec.seq)):
-                                    incorrect_query_list.append((id, query_rec[id][prime3]))
+                                    duplicated_query_list.append((id, query_rec[id][prime3]))
                                     query_rec[id][prime3] = str(rec.seq)
                                 else:
-                                    incorrect_query_list.append((id, str(rec.seq)))
+                                    duplicated_query_list.append((id, str(rec.seq)))
                             else:
                                 query_rec[id][prime3] = str(rec.seq)
                         else:
@@ -452,15 +474,15 @@ def compare_exact(genome_fasta, ref_fasta, query_fasta, caller_type, min_size, g
                         else:
                             prime3 = start_index + (len(str(rec.seq)) - 1)
 
-                        # determine if gene sequence is real, if not add to incorrect_query_list
+                        # determine if gene sequence is real, if not add to duplicated_query_list
                         if prime3 != -1:
                             # check if already present, update with longer sequence, add shorter sequence to incorrect sequences
                             if prime3 in query_rec[id]:
                                 if len(query_rec[id][prime3]) < len(str(rec.seq)):
-                                    incorrect_query_list.append((id, query_rec[id][prime3]))
+                                    duplicated_query_list.append((id, query_rec[id][prime3]))
                                     query_rec[id][prime3] = str(rec.seq)
                                 else:
-                                    incorrect_query_list.append((id, str(rec.seq)))
+                                    duplicated_query_list.append((id, str(rec.seq)))
                             else:
                                 query_rec[id][prime3] = str(rec.seq)
                         else:
@@ -477,15 +499,15 @@ def compare_exact(genome_fasta, ref_fasta, query_fasta, caller_type, min_size, g
                 else:
                     prime3 = start_index + (len(str(rec.seq)) - 1)
 
-                # determine if gene sequence is real, if not add to incorrect_query_list
+                # determine if gene sequence is real, if not add to duplicated_query_list
                 if prime3 != -1:
                     # check if already present, update with longer sequence, add shorter sequence to incorrect sequences
                     if prime3 in query_rec[id]:
                         if len(query_rec[id][prime3]) < len(str(rec.seq)):
-                            incorrect_query_list.append((id, query_rec[id][prime3]))
+                            duplicated_query_list.append((id, query_rec[id][prime3]))
                             query_rec[id][prime3] = str(rec.seq)
                         else:
-                            incorrect_query_list.append((id, str(rec.seq)))
+                            duplicated_query_list.append((id, str(rec.seq)))
                     else:
                         query_rec[id][prime3] = str(rec.seq)
                 else:
@@ -507,6 +529,12 @@ def compare_exact(genome_fasta, ref_fasta, query_fasta, caller_type, min_size, g
                 prime3 = start_index + (len(str(rec.seq)) - 1)
             if "N" not in str(rec.seq) and prime3 not in query_rec[id]:
                 query_rec[id][prime3] = str(rec.seq)
+            elif prime3 in query_rec[id]:
+                if len(query_rec[id][prime3]) < len(str(rec.seq)):
+                    duplicated_query_list.append((id, query_rec[id][prime3]))
+                    query_rec[id][prime3] = str(rec.seq)
+                else:
+                    duplicated_query_list.append((id, str(rec.seq)))
             else:
                 incorrect_query_list.append((id, str(rec.seq)))
 
@@ -524,6 +552,12 @@ def compare_exact(genome_fasta, ref_fasta, query_fasta, caller_type, min_size, g
                 prime3 = start_index + (len(str(rec.seq)) - 1)
             if "N" not in str(rec.seq) and prime3 not in query_rec[id]:
                 query_rec[id][prime3] = str(rec.seq)
+            elif prime3 in query_rec[id]:
+                if len(query_rec[id][prime3]) < len(str(rec.seq)):
+                    duplicated_query_list.append((id, query_rec[id][prime3]))
+                    query_rec[id][prime3] = str(rec.seq)
+                else:
+                    duplicated_query_list.append((id, str(rec.seq)))
             else:
                 incorrect_query_list.append((id, str(rec.seq)))
 
@@ -550,6 +584,7 @@ def compare_exact(genome_fasta, ref_fasta, query_fasta, caller_type, min_size, g
             total_query_records += 1
 
     total_query_records += len(incorrect_query_list)
+    total_query_records += len(duplicated_query_list)
 
     recall = total_correct_query_records / total_ref_records
     precision = total_correct_query_records / total_query_records
@@ -564,6 +599,7 @@ def compare_exact(genome_fasta, ref_fasta, query_fasta, caller_type, min_size, g
         f.write("FP\t{}".format(len(unmatched_query_list)) + "\n")
         f.write("FN\t{}".format(total_ref_records - total_correct_query_records) + "\n")
         f.write("Artifical\t{}".format(len(incorrect_query_list)) + "\n")
+        f.write("Duplicated\t{}".format(len(duplicated_query_list)) + "\n")
         f.write("Recall\t{}".format(recall) + "\n")
         f.write("Precision\t{}".format(precision) + "\n")
         f.write("Mean_len_prop\t{}".format(mean_prop_length) + "\n")
@@ -587,6 +623,12 @@ def compare_exact(genome_fasta, ref_fasta, query_fasta, caller_type, min_size, g
         DNA_records.append(SeqRecord(Seq(entry[1]), id=entry[0], description=""))
     SeqIO.write(DNA_records, outpref + "_ART.fasta", "fasta")
 
+    # print duplicated
+    DNA_records = []
+    for entry in duplicated_query_list:
+        DNA_records.append(SeqRecord(Seq(entry[1]), id=entry[0], description=""))
+    SeqIO.write(DNA_records, outpref + "_DUP.fasta", "fasta")
+
     with open(outpref + "_len_prop.txt", "w") as f:
         for entry in prop_length:
             f.write(str(entry) + "\n")
@@ -609,6 +651,7 @@ def compare_exact2(genome_fasta, ref_fasta, query_fasta1, caller_type1, min_size
     unmatched_query_list1 = []
     unmatched_ref_list1 = []
     incorrect_query_list1 = []
+    duplicated_query_list1 = []
 
     # data for query2
     total_correct_query_records2 = 0
@@ -619,6 +662,7 @@ def compare_exact2(genome_fasta, ref_fasta, query_fasta1, caller_type1, min_size
     unmatched_query_list2 = []
     unmatched_ref_list2 = []
     incorrect_query_list2 = []
+    duplicated_query_list2 = []
 
     # parse genome_fasta
     id_dict = {}
@@ -679,15 +723,15 @@ def compare_exact2(genome_fasta, ref_fasta, query_fasta1, caller_type1, min_size
                         else:
                             prime3 = start_index + (len(str(rec.seq)) - 1)
 
-                        # determine if gene sequence is real, if not add to incorrect_query_list
+                        # determine if gene sequence is real, if not add to duplicated_query_list1
                         if prime3 != -1:
                             # check if already present, update with longer sequence, add shorter sequence to incorrect sequences
                             if prime3 in query_rec1[id]:
                                 if len(query_rec1[id][prime3]) < len(str(rec.seq)):
-                                    incorrect_query_list1.append((id, query_rec1[id][prime3]))
+                                    duplicated_query_list1.append((id, query_rec1[id][prime3]))
                                     query_rec1[id][prime3] = str(rec.seq)
                                 else:
-                                    incorrect_query_list1.append((id, str(rec.seq)))
+                                    duplicated_query_list1.append((id, str(rec.seq)))
                             else:
                                 query_rec1[id][prime3] = str(rec.seq)
                         else:
@@ -708,15 +752,15 @@ def compare_exact2(genome_fasta, ref_fasta, query_fasta1, caller_type1, min_size
                         else:
                             prime3 = start_index + (len(str(rec.seq)) - 1)
 
-                        # determine if gene sequence is real, if not add to incorrect_query_list
+                        # determine if gene sequence is real, if not add to duplicated_query_list1
                         if prime3 != -1:
                             # check if already present, update with longer sequence, add shorter sequence to incorrect sequences
                             if prime3 in query_rec1[id]:
                                 if len(query_rec1[id][prime3]) < len(str(rec.seq)):
-                                    incorrect_query_list1.append((id, query_rec1[id][prime3]))
+                                    duplicated_query_list1.append((id, query_rec1[id][prime3]))
                                     query_rec1[id][prime3] = str(rec.seq)
                                 else:
-                                    incorrect_query_list1.append((id, str(rec.seq)))
+                                    duplicated_query_list1.append((id, str(rec.seq)))
                             else:
                                 query_rec1[id][prime3] = str(rec.seq)
                         else:
@@ -737,15 +781,15 @@ def compare_exact2(genome_fasta, ref_fasta, query_fasta1, caller_type1, min_size
                         else:
                             prime3 = start_index + (len(str(rec.seq)) - 1)
 
-                        # determine if gene sequence is real, if not add to incorrect_query_list
+                        # determine if gene sequence is real, if not add to duplicated_query_list1
                         if prime3 != -1:
                             # check if already present, update with longer sequence, add shorter sequence to incorrect sequences
                             if prime3 in query_rec1[id]:
                                 if len(query_rec1[id][prime3]) < len(str(rec.seq)):
-                                    incorrect_query_list1.append((id, query_rec1[id][prime3]))
+                                    duplicated_query_list1.append((id, query_rec1[id][prime3]))
                                     query_rec1[id][prime3] = str(rec.seq)
                                 else:
-                                    incorrect_query_list1.append((id, str(rec.seq)))
+                                    duplicated_query_list1.append((id, str(rec.seq)))
                             else:
                                 query_rec1[id][prime3] = str(rec.seq)
                         else:
@@ -762,15 +806,15 @@ def compare_exact2(genome_fasta, ref_fasta, query_fasta1, caller_type1, min_size
                 else:
                     prime3 = start_index + (len(str(rec.seq)) - 1)
 
-                # determine if gene sequence is real, if not add to incorrect_query_list
+                # determine if gene sequence is real, if not add to duplicated_query_list1
                 if prime3 != -1:
                     # check if already present, update with longer sequence, add shorter sequence to incorrect sequences
                     if prime3 in query_rec1[id]:
                         if len(query_rec1[id][prime3]) < len(str(rec.seq)):
-                            incorrect_query_list1.append((id, query_rec1[id][prime3]))
+                            duplicated_query_list1.append((id, query_rec1[id][prime3]))
                             query_rec1[id][prime3] = str(rec.seq)
                         else:
-                            incorrect_query_list1.append((id, str(rec.seq)))
+                            duplicated_query_list1.append((id, str(rec.seq)))
                     else:
                         query_rec1[id][prime3] = str(rec.seq)
                 else:
@@ -792,6 +836,12 @@ def compare_exact2(genome_fasta, ref_fasta, query_fasta1, caller_type1, min_size
                 prime3 = start_index + (len(str(rec.seq)) - 1)
             if "N" not in str(rec.seq) and prime3 not in query_rec1[id]:
                 query_rec1[id][prime3] = str(rec.seq)
+            elif prime3 in query_rec1[id]:
+                if len(query_rec1[id][prime3]) < len(str(rec.seq)):
+                    duplicated_query_list1.append((id, query_rec1[id][prime3]))
+                    query_rec1[id][prime3] = str(rec.seq)
+                else:
+                    duplicated_query_list1.append((id, str(rec.seq)))
             else:
                 incorrect_query_list1.append((id, str(rec.seq)))
 
@@ -809,6 +859,12 @@ def compare_exact2(genome_fasta, ref_fasta, query_fasta1, caller_type1, min_size
                 prime3 = start_index + (len(str(rec.seq)) - 1)
             if "N" not in str(rec.seq) and prime3 not in query_rec1[id]:
                 query_rec1[id][prime3] = str(rec.seq)
+            elif prime3 in query_rec1[id]:
+                if len(query_rec1[id][prime3]) < len(str(rec.seq)):
+                    duplicated_query_list1.append((id, query_rec1[id][prime3]))
+                    query_rec1[id][prime3] = str(rec.seq)
+                else:
+                    duplicated_query_list1.append((id, str(rec.seq)))
             else:
                 incorrect_query_list1.append((id, str(rec.seq)))
 
@@ -838,6 +894,7 @@ def compare_exact2(genome_fasta, ref_fasta, query_fasta1, caller_type1, min_size
             total_query_records1 += 1
 
     total_query_records1 += len(incorrect_query_list1)
+    total_query_records1 += len(duplicated_query_list1)
 
     # run for caller 2
     if caller_type2 == "ggc":
@@ -857,15 +914,15 @@ def compare_exact2(genome_fasta, ref_fasta, query_fasta1, caller_type1, min_size
                         else:
                             prime3 = start_index + (len(str(rec.seq)) - 1)
 
-                        # determine if gene sequence is real, if not add to incorrect_query_list
+                        # determine if gene sequence is real, if not add to duplicated_query_list2
                         if prime3 != -1:
                             # check if already present, update with longer sequence, add shorter sequence to incorrect sequences
                             if prime3 in query_rec2[id]:
                                 if len(query_rec2[id][prime3]) < len(str(rec.seq)):
-                                    incorrect_query_list2.append((id, query_rec2[id][prime3]))
+                                    duplicated_query_list2.append((id, query_rec2[id][prime3]))
                                     query_rec2[id][prime3] = str(rec.seq)
                                 else:
-                                    incorrect_query_list2.append((id, str(rec.seq)))
+                                    duplicated_query_list2.append((id, str(rec.seq)))
                             else:
                                 query_rec2[id][prime3] = str(rec.seq)
                         else:
@@ -886,15 +943,15 @@ def compare_exact2(genome_fasta, ref_fasta, query_fasta1, caller_type1, min_size
                         else:
                             prime3 = start_index + (len(str(rec.seq)) - 1)
 
-                        # determine if gene sequence is real, if not add to incorrect_query_list
+                        # determine if gene sequence is real, if not add to duplicated_query_list2
                         if prime3 != -1:
                             # check if already present, update with longer sequence, add shorter sequence to incorrect sequences
                             if prime3 in query_rec2[id]:
                                 if len(query_rec2[id][prime3]) < len(str(rec.seq)):
-                                    incorrect_query_list2.append((id, query_rec2[id][prime3]))
+                                    duplicated_query_list2.append((id, query_rec2[id][prime3]))
                                     query_rec2[id][prime3] = str(rec.seq)
                                 else:
-                                    incorrect_query_list2.append((id, str(rec.seq)))
+                                    duplicated_query_list2.append((id, str(rec.seq)))
                             else:
                                 query_rec2[id][prime3] = str(rec.seq)
                         else:
@@ -915,15 +972,15 @@ def compare_exact2(genome_fasta, ref_fasta, query_fasta1, caller_type1, min_size
                         else:
                             prime3 = start_index + (len(str(rec.seq)) - 1)
 
-                        # determine if gene sequence is real, if not add to incorrect_query_list
+                        # determine if gene sequence is real, if not add to duplicated_query_list2
                         if prime3 != -1:
                             # check if already present, update with longer sequence, add shorter sequence to incorrect sequences
                             if prime3 in query_rec2[id]:
                                 if len(query_rec2[id][prime3]) < len(str(rec.seq)):
-                                    incorrect_query_list2.append((id, query_rec2[id][prime3]))
+                                    duplicated_query_list2.append((id, query_rec2[id][prime3]))
                                     query_rec2[id][prime3] = str(rec.seq)
                                 else:
-                                    incorrect_query_list2.append((id, str(rec.seq)))
+                                    duplicated_query_list2.append((id, str(rec.seq)))
                             else:
                                 query_rec2[id][prime3] = str(rec.seq)
                         else:
@@ -940,15 +997,15 @@ def compare_exact2(genome_fasta, ref_fasta, query_fasta1, caller_type1, min_size
                 else:
                     prime3 = start_index + (len(str(rec.seq)) - 1)
 
-                # determine if gene sequence is real, if not add to incorrect_query_list
+                # determine if gene sequence is real, if not add to duplicated_query_list2
                 if prime3 != -1:
                     # check if already present, update with longer sequence, add shorter sequence to incorrect sequences
                     if prime3 in query_rec2[id]:
                         if len(query_rec2[id][prime3]) < len(str(rec.seq)):
-                            incorrect_query_list2.append((id, query_rec2[id][prime3]))
+                            duplicated_query_list2.append((id, query_rec2[id][prime3]))
                             query_rec2[id][prime3] = str(rec.seq)
                         else:
-                            incorrect_query_list2.append((id, str(rec.seq)))
+                            duplicated_query_list2.append((id, str(rec.seq)))
                     else:
                         query_rec2[id][prime3] = str(rec.seq)
                 else:
@@ -970,6 +1027,12 @@ def compare_exact2(genome_fasta, ref_fasta, query_fasta1, caller_type1, min_size
                 prime3 = start_index + (len(str(rec.seq)) - 1)
             if "N" not in str(rec.seq) and prime3 not in query_rec2[id]:
                 query_rec2[id][prime3] = str(rec.seq)
+            elif prime3 in query_rec2[id]:
+                if len(query_rec2[id][prime3]) < len(str(rec.seq)):
+                    duplicated_query_list2.append((id, query_rec2[id][prime3]))
+                    query_rec2[id][prime3] = str(rec.seq)
+                else:
+                    duplicated_query_list2.append((id, str(rec.seq)))
             else:
                 incorrect_query_list2.append((id, str(rec.seq)))
 
@@ -987,6 +1050,12 @@ def compare_exact2(genome_fasta, ref_fasta, query_fasta1, caller_type1, min_size
                 prime3 = start_index + (len(str(rec.seq)) - 1)
             if "N" not in str(rec.seq) and prime3 not in query_rec2[id]:
                 query_rec2[id][prime3] = str(rec.seq)
+            elif prime3 in query_rec2[id]:
+                if len(query_rec2[id][prime3]) < len(str(rec.seq)):
+                    duplicated_query_list2.append((id, query_rec2[id][prime3]))
+                    query_rec2[id][prime3] = str(rec.seq)
+                else:
+                    duplicated_query_list2.append((id, str(rec.seq)))
             else:
                 incorrect_query_list2.append((id, str(rec.seq)))
 
@@ -1016,7 +1085,7 @@ def compare_exact2(genome_fasta, ref_fasta, query_fasta1, caller_type1, min_size
             total_query_records2 += 1
 
     total_query_records2 += len(incorrect_query_list2)
-
+    total_query_records2 += len(duplicated_query_list2)
 
     # compare false positives between the two callers (use first caller as reference)
     inter_caller_comp_FP = []
@@ -1075,6 +1144,18 @@ def compare_exact2(genome_fasta, ref_fasta, query_fasta1, caller_type1, min_size
         if entry not in incorrect_query_list1:
             inter_caller_comp_ART.append((entry[0], "NA", entry[1]))
 
+    # compare duplicated calls
+    inter_caller_comp_DUP = []
+    for entry in duplicated_query_list1:
+        if entry in duplicated_query_list2:
+            inter_caller_comp_DUP.append((entry[0], entry[1], entry[1]))
+        else:
+            inter_caller_comp_DUP.append((entry[0], entry[1], "NA"))
+
+    for entry in duplicated_query_list2:
+        if entry not in duplicated_query_list1:
+            inter_caller_comp_DUP.append((entry[0], "NA", entry[1]))
+
     with open(outpref + "_FP.txt", "w") as f:
         f.write("Colour\tRef_seq\tCaller1_seq\tCaller1_ref_lendiff\tCaller2_seq\tCaller2_ref_lendiff\tInter_lendiff\tprime3_dist_end\n")
         for entry in inter_caller_comp_FP:
@@ -1088,6 +1169,11 @@ def compare_exact2(genome_fasta, ref_fasta, query_fasta1, caller_type1, min_size
     with open(outpref + "_ART.txt", "w") as f:
         f.write("Colour\tCaller1_seq\tCaller2_seq\n")
         for entry in inter_caller_comp_ART:
+            f.write("{}\t{}\t{}\n".format(entry[0], entry[1], entry[2]))
+
+    with open(outpref + "_DUP.txt", "w") as f:
+        f.write("Colour\tCaller1_seq\tCaller2_seq\n")
+        for entry in inter_caller_comp_DUP:
             f.write("{}\t{}\t{}\n".format(entry[0], entry[1], entry[2]))
 
 def main():
@@ -1116,8 +1202,8 @@ if __name__ == '__main__':
     #                               90, -1.0, "_pan_test")
     # output_tuple = compare_3prime("Pneumo_capsular_data/group3_capsular_seqs.fasta", "Pneumo_capsular_data/group3_capsular_CDS.fasta", "ggCaller_publication/ggc_group3_unfragmented.ffn", "ggc",
     #                              90, 1.3, "test")
-    # compare_3prime("Pneumo_capsular_data/group3_capsular_seqs.fasta", "Pneumo_capsular_data/group3_capsular_CDS.fasta", "ggCaller_publication/ggc_v1_3_4_group3_fragmented.ffn", "ggc", 90,
-    #                1.3, "ggc_test")
+    # compare_exact("Pneumo_capsular_data/group3_capsular_seqs.fasta", "Pneumo_capsular_data/group3_capsular_CDS.fasta", "ggCaller_publication/ggc_v1_3_4_group3_fragmented.ffn", "ggc", 90,
+    #                1.3, "group3_CBL_ggc_1_3_4_fragmented_exact")
     # compare_exact2("Pneumo_capsular_data/all_capsular_seqs.fasta", "Pneumo_capsular_data/all_capsular_CDS.fasta", "prokka_panaroo_outputs/CBL_all.fasta", "pan", 90,
     #                -1.0, "ggCaller_outputs/v1.3.4/CBL_all.ffn", "ggc", 1.3, "test_ggc_v_pan_comp")
 
