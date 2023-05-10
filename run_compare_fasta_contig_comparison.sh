@@ -1,0 +1,30 @@
+## ggcaller
+#python compare_fasta.py --seq Pneumo_capsular_data/group3_capsular_seqs.fasta --genes Pneumo_capsular_data/group3_capsular_CDS.fasta --query ggCaller_publication/ggc_v1_3_4_group3_fragmented.ffn --caller ggc --vers 1.3 --outpref ggCaller_publication/group3_CBL_ggc_1_3_4_fragmented
+#python compare_fasta.py --seq Pneumo_capsular_data/group3_capsular_seqs.fasta --genes Pneumo_capsular_data/group3_capsular_CDS.fasta --query ggCaller_publication/ggc_v1_3_4_group3_fragmented.ffn --caller ggc --vers 1.3 --outpref ggCaller_publication/group3_CBL_ggc_1_3_4_fragmented_exact --exact
+#
+#python compare_fasta.py --seq Pneumo_capsular_data/group3_capsular_seqs.fasta --genes Pneumo_capsular_data/group3_capsular_CDS.fasta --query ggCaller_publication/ggc_v1_3_4_group3_original.ffn --caller ggc --vers 1.3 --outpref ggCaller_publication/group3_CBL_ggc_1_3_4_original
+#python compare_fasta.py --seq Pneumo_capsular_data/group3_capsular_seqs.fasta --genes Pneumo_capsular_data/group3_capsular_CDS.fasta --query ggCaller_publication/ggc_v1_3_4_group3_original.ffn --caller ggc --vers 1.3 --outpref ggCaller_publication/group3_CBL_ggc_1_3_4_original_exact --exact
+#
+## prokka-panaroo
+#python compare_fasta.py --seq Pneumo_capsular_data/group3_capsular_seqs.fasta --genes Pneumo_capsular_data/group3_capsular_CDS.fasta --query ggCaller_publication/prokka_panaroo_group3_fragmented.fasta --caller pan --outpref ggCaller_publication/group3_CBL_prokka_panaroo_fragmented
+#python compare_fasta.py --seq Pneumo_capsular_data/group3_capsular_seqs.fasta --genes Pneumo_capsular_data/group3_capsular_CDS.fasta --query ggCaller_publication/prokka_panaroo_group3_fragmented.fasta --caller pan --outpref ggCaller_publication/group3_CBL_prokka_panaroo_fragmented_exact --exact
+#
+#python compare_fasta.py --seq Pneumo_capsular_data/group3_capsular_seqs.fasta --genes Pneumo_capsular_data/group3_capsular_CDS.fasta --query ggCaller_publication/prokka_panaroo_group3_original.fasta --caller pan --outpref ggCaller_publication/group3_CBL_prokka_panaroo_original
+#python compare_fasta.py --seq Pneumo_capsular_data/group3_capsular_seqs.fasta --genes Pneumo_capsular_data/group3_capsular_CDS.fasta --query ggCaller_publication/prokka_panaroo_group3_original.fasta --caller pan --outpref ggCaller_publication/group3_CBL_prokka_panaroo_original_exact --exact
+#
+## genemark2-panaroo
+#python compare_fasta.py --seq Pneumo_capsular_data/group3_capsular_seqs.fasta --genes Pneumo_capsular_data/group3_capsular_CDS.fasta --query ggCaller_publication/genemarks2_panaroo_group3_fragmented.fasta --caller pan --outpref ggCaller_publication/group3_CBL_genemarks2_panaroo_fragmented
+#python compare_fasta.py --seq Pneumo_capsular_data/group3_capsular_seqs.fasta --genes Pneumo_capsular_data/group3_capsular_CDS.fasta --query ggCaller_publication/genemarks2_panaroo_group3_fragmented.fasta --caller pan --outpref ggCaller_publication/group3_CBL_genemarks2_panaroo_fragmented_exact --exact
+#
+#python compare_fasta.py --seq Pneumo_capsular_data/group3_capsular_seqs.fasta --genes Pneumo_capsular_data/group3_capsular_CDS.fasta --query ggCaller_publication/genemarks2_panaroo_group3_original.fasta --caller pan --outpref ggCaller_publication/group3_CBL_genemarks2_panaroo_original
+#python compare_fasta.py --seq Pneumo_capsular_data/group3_capsular_seqs.fasta --genes Pneumo_capsular_data/group3_capsular_CDS.fasta --query ggCaller_publication/genemarks2_panaroo_group3_original.fasta --caller pan --outpref ggCaller_publication/group3_CBL_genemarks2_panaroo_original_exact --exact
+
+# compare ggCaller against other gene calls
+python compare_fasta.py --seq Pneumo_capsular_data/group3_capsular_seqs.fasta --genes Pneumo_capsular_data/group3_capsular_CDS.fasta --query ggCaller_publication/prokka_panaroo_group3_original.fasta --caller pan --query2 ggCaller_publication/ggc_v1_3_4_group3_original.ffn --caller2 ggc --vers2 1.3 --outpref ggCaller_publication/Group3_CBL_original_prok_v_ggc
+python compare_fasta.py --seq Pneumo_capsular_data/group3_capsular_seqs.fasta --genes Pneumo_capsular_data/group3_capsular_CDS.fasta --query ggCaller_publication/prokka_panaroo_group3_fragmented.fasta --caller pan --query2 ggCaller_publication/ggc_v1_3_4_group3_fragmented.ffn --caller2 ggc --vers2 1.3 --outpref ggCaller_publication/Group3_CBL_fragmented_prok_v_ggc
+
+python compare_fasta.py --seq Pneumo_capsular_data/group3_capsular_seqs.fasta --genes Pneumo_capsular_data/group3_capsular_CDS.fasta --query ggCaller_publication/genemarks2_panaroo_group3_original.fasta --caller pan --query2 ggCaller_publication/ggc_v1_3_4_group3_original.ffn --caller2 ggc --vers2 1.3 --outpref ggCaller_publication/Group3_CBL_original_genemark_v_ggc
+python compare_fasta.py --seq Pneumo_capsular_data/group3_capsular_seqs.fasta --genes Pneumo_capsular_data/group3_capsular_CDS.fasta --query ggCaller_publication/genemarks2_panaroo_group3_fragmented.fasta --caller pan --query2 ggCaller_publication/ggc_v1_3_4_group3_fragmented.ffn --caller2 ggc --vers2 1.3 --outpref ggCaller_publication/Group3_CBL_fragmented_genemark_v_ggc
+
+python compare_fasta.py --seq Pneumo_capsular_data/group3_capsular_seqs.fasta --genes Pneumo_capsular_data/group3_capsular_CDS.fasta --query ggCaller_publication/prokka_panaroo_group3_original.fasta --caller pan --query2 ggCaller_publication/genemarks2_panaroo_group3_original.fasta  --caller2 pan --outpref ggCaller_publication/Group3_CBL_original_prok_v_genemark
+python compare_fasta.py --seq Pneumo_capsular_data/group3_capsular_seqs.fasta --genes Pneumo_capsular_data/group3_capsular_CDS.fasta --query ggCaller_publication/prokka_panaroo_group3_fragmented.fasta --caller pan --query2 ggCaller_publication/genemarks2_panaroo_group3_fragmented.fasta --caller2 pan --outpref ggCaller_publication/Group3_CBL_fragmented_prok_v_genemark
