@@ -43,6 +43,10 @@ def compare_peppan(infile):
 				# get isolate
 				#iso = split_line[0].split(":")[0]
 
+				type = split_line[1]
+				if type == "misc_feature":
+					continue
+
 				#iso_set.add(iso)
 
 				length = int(split_line[4]) - int(split_line[3])
@@ -71,8 +75,6 @@ def compare_peppan(infile):
 	return cluster_dict, len_dict
 
 def compare_roary(infile, len_dict):
-	iso_set = set()
-
 	# iterate over paired files
 	cluster_dict = {}
 
