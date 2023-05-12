@@ -169,7 +169,7 @@ if __name__ == "__main__":
 	np.savetxt(outpref + "_peppan_sizes.txt", stat_size_cluster, delimiter=",")
 
 	if verbose:
-		print("PEPPAN results:")
+		print("Input: " + peppan_infile)
 		print("Average prop. standard deviation: {}".format(np.mean(stat_list_prop_stdev)))
 		print("Stdev prop. standard deviation: {}".format(np.std(stat_list_prop_stdev)))
 		print("Average standard deviation: {}".format(np.mean(stat_list_stdev)))
@@ -190,6 +190,9 @@ if __name__ == "__main__":
 		print("Stdev MAD: {}".format(np.std(stat_list_MAD)))
 		print("Average MAD (size adjusted): {}".format(np.mean(stat_list_MAD_size)))
 		print("Stdev MAD (size adjusted): {}".format(np.std(stat_list_MAD_size)))
+
+		print("Average cluster size: {}".format(np.mean(stat_size_cluster)))
+		print("Stdev cluster size: {}".format(np.std(stat_size_cluster)))
 
 	if roary_infile != None:
 		roary_dict_list = compare_roary(roary_infile, len_dict)
@@ -259,7 +262,7 @@ if __name__ == "__main__":
 		np.savetxt(outpref + "_roary_sizes.txt", stat_size_cluster, delimiter=",")
 
 		if verbose:
-			print("Roary results:")
+			print("Input: " + roary_infile)
 			print("Average prop. standard deviation: {}".format(np.mean(stat_list_prop_stdev)))
 			print("Stdev prop. standard deviation: {}".format(np.std(stat_list_prop_stdev)))
 			print("Average standard deviation: {}".format(np.mean(stat_list_stdev)))
@@ -280,6 +283,9 @@ if __name__ == "__main__":
 			print("Stdev MAD: {}".format(np.std(stat_list_MAD)))
 			print("Average MAD (size adjusted): {}".format(np.mean(stat_list_MAD_size)))
 			print("Stdev MAD (size adjusted): {}".format(np.std(stat_list_MAD_size)))
+
+			print("Average cluster size: {}".format(np.mean(stat_size_cluster)))
+			print("Stdev cluster size: {}".format(np.std(stat_size_cluster)))
 
 
 
