@@ -87,6 +87,8 @@ def compare_roary(infile, len_dict):
 
 				#iso_set.add(iso)
 
+				if gene not in len_dict:
+					continue
 				length = len_dict[gene]
 
 				if cluster_id not in cluster_dict:
