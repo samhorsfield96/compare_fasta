@@ -17,6 +17,10 @@ def get_options():
 						default=False,
 						action="store_true",
 						help='Ignore singletons in cluster size calculations')
+	parser.add_argument('--ignore_pseudogenes',
+						default=False,
+						action="store_true",
+						help='Ignore psuedogenes.')
 	parser.add_argument('--verbose',
 						default=False,
 						action="store_true",
@@ -27,7 +31,7 @@ def get_options():
 
 	return parser.parse_args()
 
-def compare_peppan(infile):
+def compare_peppan(infile, ignore_pseudogenes):
 	len_dict = {}
 
 	# iterate over paired files
@@ -59,6 +63,10 @@ def compare_peppan(infile):
 						old_length_range = old_locus.split(":")[1].split("-")
 						old_length = int(old_length_range[1]) - int(old_length_range[0])
 						len_dict[name] = old_length
+
+				# ignore psuedogene
+				if ignore_pseudogenes and type == "pseudogene":
+					continue
 
 				if "ortholog_group" not in split_line[-1]:
 					# add singleton
@@ -105,9 +113,10 @@ if __name__ == "__main__":
 	roary_infile = options.roary
 	outpref = options.outpref
 	ignore_singletons = options.ignore_singletons
+	ignore_pseudogenes = options.ignore_pseudogenes
 	verbose = options.verbose
 
-	peppan_dict_list, len_dict = compare_peppan(peppan_infile)
+	peppan_dict_list, len_dict = compare_peppan(peppan_infile, ignore_pseudogenes)
 	# iterate over peppan inputs and calculate statistics
 	stat_list_IQR = []
 	stat_list_prop_IQR = []

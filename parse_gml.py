@@ -16,6 +16,10 @@ def get_options():
 						default=False,
 						action="store_true",
 						help='Ignore singletons in cluster size calculations')
+	parser.add_argument('--ignore_refound',
+						default=False,
+						action="store_true",
+						help='Ignore refound genes.')
 	parser.add_argument('--verbose',
 						default=False,
 						action="store_true",
@@ -26,7 +30,7 @@ def get_options():
 
 	return parser.parse_args()
 
-def get_node_stats(G, ignore_singletons, verbose):
+def get_node_stats(G, ignore_singletons, verbose, ignore_refound):
 	stat_list_IQR = []
 	stat_list_prop_IQR = []
 	stat_list_MAD = []
@@ -43,6 +47,19 @@ def get_node_stats(G, ignore_singletons, verbose):
 	for n in G.nodes():
 		node_info = G.nodes[n]
 		ORF_sizes = node_info['lengths']
+		if ignore_refound:
+			gene_ids = node_info['geneIDs'].split(";")
+			to_remove = []
+			for i in range(len(gene_ids)):
+				gene_nums = gene_ids[i].split("_")
+				if "refound" in gene_nums:
+					to_remove.append(i)
+
+			# reverse to ensure indexing still supported
+			to_remove.reverse()
+			for index in to_remove:
+				del ORF_sizes[index]
+
 		ORF_sizes = np.array(ORF_sizes).astype(int)
 		cluster_size = ORF_sizes.size
 		if cluster_size == 1 and ignore_singletons:
@@ -120,12 +137,13 @@ if __name__ == "__main__":
 	outpref = options.outpref
 	verbose = options.verbose
 	ignore_singletons = options.ignore_singletons
+	ignore_refound = options.ignore_refound
 
 	G = nx.read_gml(infile)
 	if verbose:
 		print("Input: " + infile)
 
-	combined_stdev, combined_IQR, combined_MAD, stat_size_cluster = get_node_stats(G, ignore_singletons, verbose)
+	combined_stdev, combined_IQR, combined_MAD, stat_size_cluster = get_node_stats(G, ignore_singletons, verbose, ignore_refound)
 
 	np.savetxt(outpref + "_stddev.txt", combined_stdev, delimiter=",")
 	np.savetxt(outpref + "_IQR.txt", combined_IQR, delimiter=",")
